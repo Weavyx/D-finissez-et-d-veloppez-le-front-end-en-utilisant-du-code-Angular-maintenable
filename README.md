@@ -1,29 +1,52 @@
 # OlympicGamesStarter
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.6.
+Ce projet est une application Angular permettant de gérer et visualiser des données liées aux Jeux Olympiques. Il met l'accent sur une architecture front-end maintenable et une documentation claire.
 
-Don't forget to install your node_modules before starting (`npm install`).
+## Installation
 
-## Development server
+Avant de démarrer, installez les dépendances :
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+```
+npm install
+```
+
+## Démarrage du serveur de développement
+
+Lancez le serveur avec :
+
+```
+ng serve
+```
+
+Naviguez sur `http://localhost:4200/` pour accéder à l'application. Les modifications des fichiers sources rechargeront automatiquement l'application.
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Pour générer le build de production :
 
-## Where to start
+```
+ng build
+```
 
-As you can see, an architecture has already been defined for the project. It is just a suggestion, you can choose to use your own. The predefined architecture includes (in addition to the default angular architecture) the following:
+Les fichiers seront placés dans le dossier `dist/`.
 
-- `components` folder: contains every reusable components
-- `pages` folder: contains components used for routing
-- `core` folder: contains the business logic (`services` and `models` folders)
+## Architecture du projet
 
-I suggest you to start by understanding this starter code. Pay an extra attention to the `app-routing.module.ts` and the `olympic.service.ts`.
+L'organisation du code est la suivante :
 
-Once mastered, you should continue by creating the typescript interfaces inside the `models` folder. As you can see I already created two files corresponding to the data included inside the `olympic.json`. With your interfaces, improve the code by replacing every `any` by the corresponding interface.
+- `components` : composants réutilisables
+- `pages` : composants liés au routage
+- `core` : logique métier (services, modèles)
+- `documentation` : documents d'architecture et notes techniques
 
-You're now ready to implement the requested features.
+## Documentation
 
-Good luck!
+Le dossier `documentation` contient des informations sur l'architecture, les choix techniques et des notes pour faciliter la compréhension et la maintenance du projet.
+
+## Contribution
+
+Pour contribuer, créez une branche dédiée, effectuez vos modifications, puis ouvrez une Pull Request.
+
+---
+
+Ce README reflète l'état actuel du projet et son organisation. N'hésitez pas à compléter la documentation ou à proposer des améliorations.
