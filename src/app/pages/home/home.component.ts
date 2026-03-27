@@ -1,6 +1,8 @@
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {Component, OnInit} from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import Chart from 'chart.js/auto';
 import { Country } from '../../models/country.model';
 import { Participation } from '../../models/participation.model';
@@ -9,6 +11,8 @@ import { Participation } from '../../models/participation.model';
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
+  standalone: true,
+  imports: [CommonModule, RouterModule],
 })
 export class HomeComponent implements OnInit {
   private olympicUrl = './assets/mock/olympic.json';
@@ -18,7 +22,8 @@ export class HomeComponent implements OnInit {
   public error!:string
   titlePage = "Medals per Country";
 
-  constructor(private router: Router, private http:HttpClient) { }
+  private http = inject(HttpClient);
+  private router = inject(Router);
 
   ngOnInit() {
     this.http.get<Country[]>(this.olympicUrl).pipe().subscribe(

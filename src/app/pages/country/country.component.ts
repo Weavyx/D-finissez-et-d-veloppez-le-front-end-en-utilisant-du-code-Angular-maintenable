@@ -1,6 +1,8 @@
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, ParamMap, Router} from '@angular/router';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import Chart from 'chart.js/auto';
 import { Country } from '../../models/country.model';
 import { Participation } from '../../models/participation.model';
@@ -9,9 +11,14 @@ import { Participation } from '../../models/participation.model';
 @Component({
   selector: 'app-country',
   templateUrl: './country.component.html',
-  styleUrls: ['./country.component.scss']
+  styleUrls: ['./country.component.scss'],
+  standalone: true,
+  imports: [CommonModule, RouterModule],
 })
 export class CountryComponent implements OnInit {
+  private http = inject(HttpClient);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private olympicUrl = './assets/mock/olympic.json';
   public lineChart!: Chart<"line", string[], number>;
   public titlePage = '';
@@ -19,9 +26,6 @@ export class CountryComponent implements OnInit {
   public totalMedals = 0;
   public totalAthletes = 0;
   public error!: string;
-
-  constructor(private route: ActivatedRoute, private router: Router, private http: HttpClient) {
-  }
 
   ngOnInit() {
     let countryName: string | null = null
