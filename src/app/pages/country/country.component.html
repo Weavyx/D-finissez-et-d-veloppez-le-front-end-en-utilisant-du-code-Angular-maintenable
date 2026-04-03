@@ -1,4 +1,6 @@
-<div>
+<app-loading-indicator @if="loading" aria-live="polite" role="status"></app-loading-indicator>
+<app-error-message @if="error" [message]="error" aria-live="assertive" role="alert"></app-error-message>
+<div @if="!loading && !error">
   <div>
     <div class="center">
       <div>{{ titlePage }}</div>
