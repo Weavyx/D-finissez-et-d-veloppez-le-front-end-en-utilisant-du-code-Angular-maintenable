@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import Chart from 'chart.js/auto';
 import { Country } from '../../models/country.model';
 import { Participation } from '../../models/participation.model';
+
 import { OlympicDataService } from '../../services/olympic-data.service';
 
 @Component({
@@ -24,6 +25,7 @@ export class HomeComponent implements OnInit {
 
   private http = inject(HttpClient);
   private router = inject(Router);
+  private olympicService = inject(OlympicDataService);
 
   ngOnInit() {
     this.olympicService.getOlympicCountries().subscribe(
