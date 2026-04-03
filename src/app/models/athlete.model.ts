@@ -5,4 +5,3 @@ export interface Athlete {
   country: string;
   medals: number;
 }
-

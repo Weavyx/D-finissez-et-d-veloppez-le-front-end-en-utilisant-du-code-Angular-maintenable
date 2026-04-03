@@ -11,4 +11,3 @@ export interface Country {
   /** Liste des participations du pays */
   participations: Participation[];
 }
-

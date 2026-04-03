@@ -6,7 +6,9 @@ export class ErrorHandlerService implements ErrorHandler {
   private logger = inject(LoggerService);
 
   handleError(error: Error | string): void {
-    this.logger.log('Erreur interceptée: ' + (error instanceof Error ? error.message : error));
+    this.logger.log(
+      'Erreur interceptée: ' + (error instanceof Error ? error.message : error),
+    );
     // Affichage console pour le dev
     console.error('Erreur interceptée:', error);
     // TODO: Affichage UI global si besoin (ex: via un service de notification)

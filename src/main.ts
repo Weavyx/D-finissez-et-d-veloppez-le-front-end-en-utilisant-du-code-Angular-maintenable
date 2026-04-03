@@ -1,6 +1,10 @@
-import { enableProdMode, importProvidersFrom, ErrorHandler } from '@angular/core';
+import { enableProdMode, ErrorHandler } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter, Routes, withComponentInputBinding } from '@angular/router';
+import {
+  provideRouter,
+  Routes,
+  withComponentInputBinding,
+} from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { environment } from './environments/environment';
 import { AppComponent } from './app/app.component';
@@ -26,4 +30,4 @@ bootstrapApplication(AppComponent, {
     provideHttpClient(),
     { provide: ErrorHandler, useClass: ErrorHandlerService },
   ],
-}).catch(err => console.error(err));
+}).catch((err) => console.error(err));

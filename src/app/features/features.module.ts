@@ -18,12 +18,9 @@ import { NotFoundComponent } from '../pages/not-found/not-found.component';
 @NgModule({
   declarations: [HomeComponent, CountryComponent, NotFoundComponent],
   imports: [],
-  exports: [HomeComponent, CountryComponent, NotFoundComponent]
+  exports: [HomeComponent, CountryComponent, NotFoundComponent],
 })
 /**
  * Classe du module Features.
  */
 export class FeaturesModule {}
-
-
-

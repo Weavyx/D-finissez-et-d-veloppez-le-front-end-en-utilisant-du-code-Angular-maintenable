@@ -2,7 +2,7 @@ import { Directive, ElementRef, Input, OnInit, inject } from '@angular/core';
 
 @Directive({
   selector: '[appCountryFlag]',
-  standalone: true
+  standalone: true,
 })
 export class CountryFlagDirective implements OnInit {
   @Input('appCountryFlag') countryCode!: string;
