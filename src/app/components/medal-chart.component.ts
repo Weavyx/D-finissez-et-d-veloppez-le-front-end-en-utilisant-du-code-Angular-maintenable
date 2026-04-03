@@ -9,7 +9,7 @@ export interface MedalChartData {
 @Component({
   selector: 'app-medal-chart',
   template: '<div>Graphique des médailles (à implémenter)</div>',
-  standalone: true
+  standalone: true,
 })
 export class MedalChartComponent {
   @Input() data!: MedalChartData;

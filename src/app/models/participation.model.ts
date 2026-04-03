@@ -13,4 +13,3 @@ export interface Participation {
   /** Nombre d'athlètes participants */
   athleteCount: number;
 }
-
