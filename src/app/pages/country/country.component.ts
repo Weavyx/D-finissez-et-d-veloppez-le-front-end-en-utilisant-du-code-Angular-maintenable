@@ -1,5 +1,5 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, ChangeDetectionStrategy, inject, OnInit} from '@angular/core';
 import {ActivatedRoute, ParamMap, RouterModule} from '@angular/router';
 import Chart from 'chart.js/auto';
 import {Country} from '../../models/country.model';
@@ -14,6 +14,7 @@ import {OlympicDataService} from '../../services/olympic-data.service';
   styleUrls: ['./country.component.scss'],
   standalone: true,
   imports: [CommonModule, RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountryComponent implements OnInit {
   private route = inject(ActivatedRoute);
