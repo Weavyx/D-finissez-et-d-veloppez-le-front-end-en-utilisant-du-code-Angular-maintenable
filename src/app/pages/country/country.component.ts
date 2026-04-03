@@ -1,11 +1,11 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import {HttpErrorResponse} from '@angular/common/http';
+import {Component, inject, OnInit} from '@angular/core';
+import {ActivatedRoute, ParamMap, RouterModule} from '@angular/router';
 import Chart from 'chart.js/auto';
-import { Country } from '../../models/country.model';
-import { Participation } from '../../models/participation.model';
+import {Country} from '../../models/country.model';
+import {Participation} from '../../models/participation.model';
+import {CommonModule} from "@angular/common";
+import {OlympicDataService} from '../../services/olympic-data.service';
 
 
 @Component({
@@ -16,10 +16,8 @@ import { Participation } from '../../models/participation.model';
   imports: [CommonModule, RouterModule],
 })
 export class CountryComponent implements OnInit {
-  private http = inject(HttpClient);
-  private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private olympicUrl = './assets/mock/olympic.json';
+  private olympicService = inject(OlympicDataService);
   public lineChart!: Chart<"line", string[], number>;
   public titlePage = '';
   public totalEntries = 0;
@@ -28,10 +26,10 @@ export class CountryComponent implements OnInit {
   public error!: string;
 
   ngOnInit() {
-    let countryName: string | null = null
+    let countryName: string | null = null;
     this.route.paramMap.subscribe((param: ParamMap) => countryName = param.get('countryName'));
-    this.http.get<Country[]>(this.olympicUrl).pipe().subscribe(
-      (data: Country[]) => {
+    this.olympicService.getOlympicCountries().subscribe({
+      next: (data: Country[]) => {
         if (data && data.length > 0) {
           const selectedCountry = data.find((i: Country) => i.country === countryName);
           if (selectedCountry) {
@@ -47,14 +45,14 @@ export class CountryComponent implements OnInit {
           }
         }
       },
-      (error: HttpErrorResponse) => {
+      error: (error: HttpErrorResponse) => {
         this.error = error.message;
       }
-    );
+    });
   }
 
   buildChart(years: number[], medals: string[]) {
-    const lineChart = new Chart("countryChart", {
+    this.lineChart = new Chart("countryChart", {
       type: 'line',
       data: {
         labels: years,
@@ -70,6 +68,5 @@ export class CountryComponent implements OnInit {
         aspectRatio: 2.5
       }
     });
-    this.lineChart = lineChart;
   }
 }
