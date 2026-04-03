@@ -1,11 +1,12 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import Chart from 'chart.js/auto';
 import { Country } from '../../models/country.model';
 import { Participation } from '../../models/participation.model';
+
 import { OlympicDataService } from '../../services/olympic-data.service';
 
 @Component({
@@ -14,6 +15,7 @@ import { OlympicDataService } from '../../services/olympic-data.service';
   styleUrls: ['./home.component.scss'],
   standalone: true,
   imports: [CommonModule, RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
   public pieChart!: Chart<"pie", number[], string>;
@@ -24,6 +26,7 @@ export class HomeComponent implements OnInit {
 
   private http = inject(HttpClient);
   private router = inject(Router);
+  private olympicService = inject(OlympicDataService);
 
   ngOnInit() {
     this.olympicService.getOlympicCountries().subscribe(
