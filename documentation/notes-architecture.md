@@ -17,7 +17,7 @@ Synthétiser les problèmes, risques, anti-patterns et recommandations pour amé
 | Constat | Impact | Priorité | Action recommandée | Fichier concerné |
 |---|---|---|---|---|
 | Absence de couches `models` et `services` | Couplage fort, duplication des règles métier | P1 | Introduire un service de données olympiques + modèles types partagés | src/app |
-| Modularité limitée | Évolution fonctionnelle coûteuse | P2 | Définir des frontières fonctionnelles (feature module ou standalone) | src/app/app.module.ts |
+| Modularité limitée | Évolution fonctionnelle coûteuse | P2 | Définir des frontières fonctionnelles (standalone components) | src/app |
 | Non-conformité lint globale | Risque d’échec CI, baisse de maintenabilité | P1 | Corriger `no-explicit-any`, `prefer-inject`, puis les cas restants | src/app/pages/home/home.component.ts, src/app/pages/country/country.component.ts, src/app/pages/not-found/not-found.component.ts |
 | Observabilité insuffisante | Diagnostic incident lent | P2 | Mettre en place un `ErrorHandler` central et une stratégie de journalisation | src/main.ts |
 | Test racine obsolète | Feedback qualité peu fiable | P1 | Aligner les assertions sur le comportement réel de `AppComponent` | src/app/app.component.spec.ts |
@@ -121,5 +121,3 @@ src/app/
 - Cette analyse est évolutive : adaptez-la selon les besoins du projet.
 - Pour la structure cible, voir `ARCHITECTURE.md`.
 - Pour les guides et ressources, voir `guide-utilisation.md` et `ressources.md`.
-
-

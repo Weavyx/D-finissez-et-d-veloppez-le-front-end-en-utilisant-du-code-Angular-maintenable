@@ -1,11 +1,11 @@
 # ARCHITECTURE.md
 
 ## Objectif
-Ce document présente l’organisation, les choix d’architecture et les fichiers à créer pour garantir la clarté, l’évolutivité et la maintenabilité du front-end Angular.
+Ce document présente l’organisation, les choix d’architecture et les fichiers à créer pour garantir la clarté, l’évolutivité et la maintenabilité du front-end Angular, en s’appuyant sur les pratiques Angular modernes (standalone components, routage standalone, signals, OnPush, etc.).
 
 ---
 
-## Structure complète du projet
+## Structure complète du projet (Angular moderne)
 ```
 D-finissez-et-d-veloppez-le-front-end-en-utilisant-du-code-Angular-maintenable/
   ...fichiers racine (config, documentation)...
@@ -17,16 +17,15 @@ D-finissez-et-d-veloppez-le-front-end-en-utilisant-du-code-Angular-maintenable/
     polyfills.ts
     test.ts
     app/
-      app.module.ts                # Module racine
-      app-routing.module.ts        # Module de routage
-      app.component.ts/.html/.scss/.spec.ts # Composant racine
+      app.component.ts/.html/.scss/.spec.ts # Composant racine (standalone)
+      app.routes.ts                        # Définition des routes (standalone)
       pages/
         home/
-          home.component.ts/.html/.scss/.spec.ts # Page d'accueil
+          home.component.ts/.html/.scss/.spec.ts # Page d'accueil (standalone)
         country/
-          country.component.ts/.html/.scss/.spec.ts # Page pays
+          country.component.ts/.html/.scss/.spec.ts # Page pays (standalone)
         not-found/
-          not-found.component.ts/.html/.scss/.spec.ts # Page erreur 404
+          not-found.component.ts/.html/.scss/.spec.ts # Page erreur 404 (standalone)
       models/
         olympic.model.ts          # Interface Olympic, Participation
         country.model.ts          # Interface pays
@@ -40,14 +39,14 @@ D-finissez-et-d-veloppez-le-front-end-en-utilisant-du-code-Angular-maintenable/
         enum.ts                   # Enumérations
         response.type.ts          # Typage réponse HTTP/mock
       shared/
-        loading-indicator.component.ts  # Composant état de chargement
-        error-message.component.ts      # Composant affichage erreurs
-        medal.pipe.ts                   # Pipe format médailles
-        country-flag.directive.ts       # Directive drapeau pays
+        loading-indicator.component.ts  # Composant état de chargement (standalone)
+        error-message.component.ts      # Composant affichage erreurs (standalone)
+        medal.pipe.ts                   # Pipe format médailles (standalone)
+        country-flag.directive.ts       # Directive drapeau pays (standalone)
       components/
-        country-summary.component.ts    # UI résumé pays
-        medal-chart.component.ts        # UI graphique médailles
-        athlete-list.component.ts       # UI liste athlètes
+        country-summary.component.ts    # UI résumé pays (standalone)
+        medal-chart.component.ts        # UI graphique médailles (standalone)
+        athlete-list.component.ts       # UI liste athlètes (standalone)
     assets/
       images/
         teleSport.png
@@ -60,36 +59,40 @@ D-finissez-et-d-veloppez-le-front-end-en-utilisant-du-code-Angular-maintenable/
 
 ---
 
-## Explications par dossier
+## Explications par dossier (Angular moderne)
 - **models/** : Interfaces TypeScript pour le typage strict des données métier.
 - **services/** : Services Angular pour la logique métier, accès données, gestion d’erreur.
 - **types/** : Types utilitaires, enums, typage des réponses.
-- **shared/** : Composants, pipes, directives réutilisables.
-- **components/** : Composants UI spécifiques, découpage d’éléments complexes.
-- **pages/** : Composants de pages, chaque dossier représente une vue principale.
+- **shared/** : Composants, pipes, directives réutilisables, tous standalone.
+- **components/** : Composants UI spécifiques, standalone, pour le découpage d’éléments complexes.
+- **pages/** : Composants de pages, standalone, chaque dossier représente une vue principale.
 - **assets/** : Images, données mockées.
 - **environments/** : Configurations d’environnement Angular.
 
 ---
 
-## Principes et avantages
-- **Séparation des responsabilités** : Composants pour l’affichage, services pour la logique métier.
+## Principes et avantages (Angular moderne)
+- **Standalone components** : Suppression des modules, chaque composant/directive/pipe est autonome et importable directement.
+- **Signals** : Gestion d’état locale réactive, plus simple et performante que RxJS pour les cas courants.
+- **ChangeDetection OnPush** : Tous les composants utilisent la stratégie OnPush pour des performances optimales.
 - **Typage strict** : Interfaces et types pour fiabiliser le code.
 - **Réutilisabilité** : Mutualisation des éléments dans `shared/`.
-- **Modularité** : Ajout facile de nouvelles fonctionnalités.
-- **Préparation à l’API** : Services prêts pour l’intégration d’un back-end.
+- **Modularité** : Ajout facile de nouvelles fonctionnalités, découplage maximal.
+- **Préparation à l’API** : Services prêts pour l’intégration d’un back-end, injection moderne.
 - **Maintenance facilitée** : Structure claire, évolutive, adaptée à la CI/CD.
 
 ---
 
-## Checklist actionnable
+## Checklist actionnable (Angular moderne)
 - [ ] Créer les dossiers `models`, `services`, `types`, `shared`, `components` dans `src/app/`
 - [ ] Ajouter les interfaces métier dans `models/`
 - [ ] Implémenter les services de données et d’erreur dans `services/`
 - [ ] Définir les types utilitaires dans `types/`
-- [ ] Mutualiser les composants/pipes/directives dans `shared/`
-- [ ] Extraire les UI spécifiques dans `components/`
-- [ ] Vérifier la cohérence des pages dans `pages/`
+- [ ] Mutualiser les composants/pipes/directives standalone dans `shared/`
+- [ ] Extraire les UI spécifiques standalone dans `components/`
+- [ ] Vérifier la cohérence des pages standalone dans `pages/`
+- [ ] Utiliser les signals pour la gestion d’état locale
+- [ ] Appliquer la stratégie OnPush partout
 - [ ] Documenter et maintenir la structure dans `ARCHITECTURE.md`
 
 ---
@@ -97,6 +100,4 @@ D-finissez-et-d-veloppez-le-front-end-en-utilisant-du-code-Angular-maintenable/
 ## Notes
 - Cette architecture est évolutive : adaptez-la selon les besoins du projet.
 - Pour les anti-patterns et problèmes identifiés, voir `notes-architecture.md`.
-- Pour les guides et ressources, voir `guide-utilisation.md` et `ressources.md`.
-
-
+- Pour les guides et ressources, voir `guide-utilisation.md`, `nouvelles-pratiques-angular.md` et `ressources.md`.
