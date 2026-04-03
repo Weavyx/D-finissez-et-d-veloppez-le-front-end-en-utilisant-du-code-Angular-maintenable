@@ -8,13 +8,15 @@ import { Country } from '../../models/country.model';
 import { Participation } from '../../models/participation.model';
 
 import { OlympicDataService } from '../../services/olympic-data.service';
+import { ErrorMessageComponent } from '../shared/error-message.component';
+import { LoadingIndicatorComponent } from '../shared/loading-indicator.component';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ErrorMessageComponent, LoadingIndicatorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
@@ -23,12 +25,14 @@ export class HomeComponent implements OnInit {
   public totalJOs = 0;
   public error!:string
   titlePage = "Medals per Country";
+  public loading = true;
 
   private http = inject(HttpClient);
   private router = inject(Router);
   private olympicService = inject(OlympicDataService);
 
   ngOnInit() {
+    this.loading = true;
     this.olympicService.getOlympicCountries().subscribe(
       (data: Country[]) => {
         if (data && data.length > 0) {
@@ -39,9 +43,11 @@ export class HomeComponent implements OnInit {
           const sumOfAllMedalsYears = medals.map((i: number[]) => i.reduce((acc: number, val: number) => acc + val, 0));
           this.buildPieChart(countries, sumOfAllMedalsYears);
         }
+        this.loading = false;
       },
       (error: HttpErrorResponse) => {
         this.error = error.message;
+        this.loading = false;
       }
     );
   }

@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-error-message',
-  template: '<div class="error">{{message}}</div>',
+  template: '<div class="error" aria-live="assertive" role="alert">{{message}}</div>',
   styleUrls: ['./error-message.component.scss'],
   standalone: true
 })

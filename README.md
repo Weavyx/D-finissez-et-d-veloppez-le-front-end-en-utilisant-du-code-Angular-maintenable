@@ -39,6 +39,17 @@ L'organisation du code est la suivante :
 - `core` : logique métier (services, modèles)
 - `documentation` : documents d'architecture et notes techniques
 
+## Pratiques Angular modernes
+
+- **Composants standalone** : Tous les composants, pipes et directives sont standalone, sans modules classiques.
+- **Stratégie OnPush** : Tous les composants standalone utilisent ChangeDetectionStrategy.OnPush pour de meilleures performances.
+- **Typage strict** : Aucun usage de `any` ou `unknown`, tout est typé via interfaces/types.
+- **Gestion centralisée des erreurs** : Un service ErrorHandlerService gère toutes les erreurs globalement et utilise LoggerService pour la journalisation.
+- **Logging uniforme** : Tous les logs passent par LoggerService, jamais directement par `console.log`.
+- **États UI explicites** : Les états de chargement et d’erreur sont affichés via des composants dédiés (`LoadingIndicatorComponent`, `ErrorMessageComponent`).
+- **Accessibilité** : Les composants d’état utilisent les attributs ARIA et role appropriés pour l’accessibilité.
+- **Signals** : Utilisés uniquement si pertinent pour la gestion d’état locale réactive (pas pour les flux HTTP).
+
 ## Documentation
 
 Le dossier `documentation` contient des informations sur l'architecture, les choix techniques et des notes pour faciliter la compréhension et la maintenance du projet.

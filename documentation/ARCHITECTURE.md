@@ -80,6 +80,12 @@ D-finissez-et-d-veloppez-le-front-end-en-utilisant-du-code-Angular-maintenable/
 - **Modularité** : Ajout facile de nouvelles fonctionnalités, découplage maximal.
 - **Préparation à l’API** : Services prêts pour l’intégration d’un back-end, injection moderne.
 - **Maintenance facilitée** : Structure claire, évolutive, adaptée à la CI/CD.
+- **Gestion centralisée des erreurs et du logging** :
+  - Toutes les erreurs sont capturées par un service ErrorHandlerService global, qui utilise LoggerService pour la journalisation.
+  - Aucun usage direct de `console.log` dans le code applicatif.
+- **États UI explicites et accessibilité** :
+  - Les états de chargement et d’erreur sont affichés via des composants dédiés (`LoadingIndicatorComponent`, `ErrorMessageComponent`).
+  - Les composants d’état utilisent les attributs ARIA et role appropriés pour garantir l’accessibilité (notamment pour les lecteurs d’écran).
 
 ---
 

@@ -6,6 +6,8 @@ import {Country} from '../../models/country.model';
 import {Participation} from '../../models/participation.model';
 import {CommonModule} from "@angular/common";
 import {OlympicDataService} from '../../services/olympic-data.service';
+import { ErrorMessageComponent } from '../../shared/error-message.component';
+import { LoadingIndicatorComponent } from '../../shared/loading-indicator.component';
 
 
 @Component({
@@ -13,7 +15,7 @@ import {OlympicDataService} from '../../services/olympic-data.service';
   templateUrl: './country.component.html',
   styleUrls: ['./country.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ErrorMessageComponent, LoadingIndicatorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountryComponent implements OnInit {
@@ -25,8 +27,10 @@ export class CountryComponent implements OnInit {
   public totalMedals = 0;
   public totalAthletes = 0;
   public error!: string;
+  public loading = true;
 
   ngOnInit() {
+    this.loading = true;
     let countryName: string | null = null;
     this.route.paramMap.subscribe((param: ParamMap) => countryName = param.get('countryName'));
     this.olympicService.getOlympicCountries().subscribe({
@@ -45,9 +49,11 @@ export class CountryComponent implements OnInit {
             this.buildChart(years, medals);
           }
         }
+        this.loading = false;
       },
       error: (error: HttpErrorResponse) => {
         this.error = error.message;
+        this.loading = false;
       }
     });
   }

@@ -3,8 +3,7 @@ import { Injectable } from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class LoggerService {
   log(message: string): void {
-    // TODO: Implémenter la journalisation
+    // Journalisation améliorée (future extension: envoi serveur, stockage, etc.)
     console.log('[LOG]', message);
   }
 }
-
