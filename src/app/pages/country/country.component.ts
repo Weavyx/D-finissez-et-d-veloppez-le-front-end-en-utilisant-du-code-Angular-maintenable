@@ -35,17 +35,21 @@ export class CountryComponent implements OnInit {
   public totalEntries = 0;
   public totalMedals = 0;
   public totalAthletes = 0;
-  public error!: string;
+  public error: string | null = null;
   public loading = true;
 
   ngOnInit() {
-    this.loading = true;
+    this.olympicService.loadOlympicCountries();
+    this.olympicService.loading$.subscribe((loading) => {
+      this.loading = loading;
+    });
+    this.olympicService.error$.subscribe((err) => {
+      this.error = err;
+    });
     let countryName: string | null = null;
-    this.route.paramMap.subscribe(
-      (param: ParamMap) => (countryName = param.get('countryName')),
-    );
-    this.olympicService.getOlympicCountries().subscribe({
-      next: (data: Country[]) => {
+    this.route.paramMap.subscribe((param: ParamMap) => {
+      countryName = param.get('countryName');
+      this.olympicService.countries$.subscribe((data) => {
         if (data && data.length > 0) {
           const selectedCountry = data.find(
             (i: Country) => i.country === countryName,
@@ -74,12 +78,7 @@ export class CountryComponent implements OnInit {
             this.buildChart(years, medals);
           }
         }
-        this.loading = false;
-      },
-      error: (error: HttpErrorResponse) => {
-        this.error = error.message;
-        this.loading = false;
-      },
+      });
     });
   }
 

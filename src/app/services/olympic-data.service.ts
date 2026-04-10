@@ -1,36 +1,57 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap, finalize } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 import { Country } from '../models/country.model';
 
 @Injectable({ providedIn: 'root' })
 export class OlympicDataService {
   private olympicUrl = './assets/mock/olympic.json';
 
-  private countriesCache: Country[] | null = null;
-  private countriesRequest$: Observable<Country[]> | null = null;
+  private countriesSubject = new BehaviorSubject<Country[] | null>(null);
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  private errorSubject = new BehaviorSubject<string | null>(null);
+  private loaded = false;
 
-  getOlympicCountries(): Observable<Country[]> {
-    const http = inject(HttpClient);
-    if (this.countriesCache) {
-      return new Observable<Country[]>(observer => {
-        observer.next(this.countriesCache!);
-        observer.complete();
-      });
-    }
-    if (this.countriesRequest$) {
-      return this.countriesRequest$;
-    }
-    this.countriesRequest$ = http.get<Country[]>(this.olympicUrl).pipe(
-      tap(countries => this.countriesCache = countries),
-      catchError(this.handleError),
-      finalize(() => this.countriesRequest$ = null)
-    );
-    return this.countriesRequest$;
+  private http = inject(HttpClient);
+
+  /** Observable pour les composants */
+  get countries$(): Observable<Country[] | null> {
+    return this.countriesSubject.asObservable();
+  }
+  get loading$(): Observable<boolean> {
+    return this.loadingSubject.asObservable();
+  }
+  get error$(): Observable<string | null> {
+    return this.errorSubject.asObservable();
   }
 
-  private handleError(error: HttpErrorResponse) {
-    return throwError(() => error);
+  /** Chargement unique des données olympiques */
+  loadOlympicCountries(): void {
+    if (this.loaded || this.loadingSubject.value) return;
+    this.loadingSubject.next(true);
+    this.http.get<Country[]>(this.olympicUrl).pipe(
+      catchError((error: HttpErrorResponse) => {
+        this.errorSubject.next(error.message);
+        this.countriesSubject.next(null);
+        return throwError(() => error);
+      }),
+      finalize(() => this.loadingSubject.next(false))
+    ).subscribe({
+      next: (countries) => {
+        this.countriesSubject.next(countries);
+        this.errorSubject.next(null);
+        this.loaded = true;
+      },
+      error: () => {
+        this.countriesSubject.next(null);
+      }
+    });
   }
+
+  /** Pour forcer un rafraîchissement
+  refreshOlympicCountries(): void {
+    this.loaded = false;
+   this.loadOlympicCountries();
+  }*/
 }
