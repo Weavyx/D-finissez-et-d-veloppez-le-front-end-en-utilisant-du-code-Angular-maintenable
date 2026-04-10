@@ -89,6 +89,40 @@ D-finissez-et-d-veloppez-le-front-end-en-utilisant-du-code-Angular-maintenable/
 
 ---
 
+## Centralisation de la donnée olympique (BehaviorSubject)
+
+Le service `OlympicDataService` centralise le chargement des données olympiques via un `BehaviorSubject<Country[] | null>`. Cette approche garantit :
+- Un seul chargement des données depuis l’API/mock pour toute l’application.
+- Une diffusion réactive de la donnée à tous les composants consommateurs.
+- Une gestion centralisée des états de chargement et d’erreur.
+
+**Exemple d’utilisation dans un composant** :
+
+```typescript
+@Component({ /* ... */ })
+export class HomeComponent implements OnInit {
+  public loading = true;
+  public error: string | null = null;
+  public totalCountries = 0;
+  private olympicService = inject(OlympicDataService);
+
+  ngOnInit() {
+    this.olympicService.loadOlympicCountries();
+    this.olympicService.loading$.subscribe((loading) => this.loading = loading);
+    this.olympicService.error$.subscribe((err) => this.error = err);
+    this.olympicService.countries$.subscribe((data) => {
+      if (data) this.totalCountries = data.length;
+    });
+  }
+}
+```
+
+- Les composants n’ont plus à gérer le cache ou la logique de chargement.
+- Le service expose également un observable d’erreur et de chargement pour l’UI.
+- Cette approche est adaptée à la consommation d’une API réelle.
+
+---
+
 ## Checklist actionnable (Angular moderne)
 - [ ] Créer les dossiers `models`, `services`, `types`, `shared`, `components` dans `src/app/`
 - [ ] Ajouter les interfaces métier dans `models/`

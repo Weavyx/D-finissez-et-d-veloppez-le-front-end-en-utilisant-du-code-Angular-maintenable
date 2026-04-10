@@ -50,6 +50,39 @@ L'organisation du code est la suivante :
 - **Accessibilité** : Les composants d’état utilisent les attributs ARIA et role appropriés pour l’accessibilité.
 - **Signals** : Utilisés uniquement si pertinent pour la gestion d’état locale réactive (pas pour les flux HTTP).
 
+## Centralisation de la donnée olympique
+
+Le service `OlympicDataService` centralise le chargement des données olympiques via un `BehaviorSubject`. Les composants consomment la donnée de manière réactive, sans risque de requêtes multiples.
+
+**Exemple d'utilisation dans un composant :**
+
+```typescript
+@Component({ /* ... */ })
+export class HomeComponent implements OnInit {
+  public totalCountries = 0;
+  public totalJOs = 0;
+  public error: string | null = null;
+  public loading = true;
+  private olympicService = inject(OlympicDataService);
+
+  ngOnInit() {
+    this.olympicService.loadOlympicCountries();
+    this.olympicService.loading$.subscribe((loading) => this.loading = loading);
+    this.olympicService.error$.subscribe((err) => this.error = err);
+    this.olympicService.countries$.subscribe((data) => {
+      if (data && data.length > 0) {
+        this.totalCountries = data.length;
+        this.totalJOs = /* ...calcul... */;
+      }
+    });
+  }
+}
+```
+
+- Le service garantit un seul chargement depuis l'API/mock.
+- Tous les composants accèdent à la donnée centralisée, même après le chargement initial.
+- Les états de chargement et d'erreur sont exposés pour l'UI.
+
 ## Documentation
 
 Le dossier `documentation` contient des informations sur l'architecture, les choix techniques et des notes pour faciliter la compréhension et la maintenance du projet.
