@@ -4,19 +4,19 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/home/home.component').then((m) => m.HomeComponent),
+      import('./pages/home/home.component.js').then((m) => m.HomeComponent),
   },
   {
     path: 'country/:countryName',
     loadComponent: () =>
-      import('./pages/country/country.component').then(
+      import('./pages/country/country.component.js').then(
         (m) => m.CountryComponent,
       ),
   },
   {
     path: 'not-found',
     loadComponent: () =>
-      import('./pages/not-found/not-found.component').then(
+      import('./pages/not-found/not-found.component.js').then(
         (m) => m.NotFoundComponent,
       ),
   },

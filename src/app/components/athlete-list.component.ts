@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Athlete } from '../models/athlete.model';
+import { Athlete } from '../models/athlete.model.js';
 
 @Component({
   selector: 'app-athlete-list',

@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { Country } from '../models/country.model';
+import { Country } from '../models/country.model.js';
 
 @Component({
   selector: 'app-country-summary',
   template:
-    '<div>{{country?.country}} ({{country?.participations.length}} participations)</div>',
+    '@if (country) { {{country.country}} ({{country.participations.length}} participations) }',
   standalone: true,
 })
 export class CountrySummaryComponent {

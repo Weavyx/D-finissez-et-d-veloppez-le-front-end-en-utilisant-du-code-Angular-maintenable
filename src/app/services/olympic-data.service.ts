@@ -13,7 +13,7 @@ export class OlympicDataService {
   private errorSubject = new BehaviorSubject<string | null>(null);
   private loaded = false;
 
-  private http = inject(HttpClient);
+  private http: HttpClient = inject(HttpClient);
 
   /** Observable pour les composants */
   get countries$(): Observable<Country[] | null> {
@@ -38,7 +38,7 @@ export class OlympicDataService {
       }),
       finalize(() => this.loadingSubject.next(false))
     ).subscribe({
-      next: (countries) => {
+      next: (countries: Country[]) => {
         this.countriesSubject.next(countries);
         this.errorSubject.next(null);
         this.loaded = true;

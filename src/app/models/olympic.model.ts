@@ -1,4 +1,4 @@
-import { Country } from './country.model';
+import { Country } from './country.model.js';
 
 /**
  * Structure globale des données olympiques.

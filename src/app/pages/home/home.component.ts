@@ -5,11 +5,12 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { ErrorHandler } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import Chart from 'chart.js/auto';
-import { Country } from '../../models/country.model';
-import { Participation } from '../../models/participation.model';
+import { Country } from '../../models/country.model.js';
+import { Participation } from '../../models/participation.model.js';
 
 import { OlympicDataService } from '../../services/olympic-data.service';
 import { ErrorMessageComponent } from '../../shared/error-message.component';
@@ -32,23 +33,24 @@ export class HomeComponent implements OnInit {
   public pieChart!: Chart<'pie', number[], string>;
   public totalCountries = 0;
   public totalJOs = 0;
-  public error: string | null = null;
+  public error = '';
   titlePage = 'Medals per Country';
   public loading = true;
 
   private router = inject(Router);
   private olympicService = inject(OlympicDataService);
+  private errorHandler = inject(ErrorHandler);
 
   ngOnInit() {
-    this.olympicService.loadOlympicCountries();
-    this.olympicService.loading$.subscribe((loading) => {
-      this.loading = loading;
+    (this.olympicService as OlympicDataService).loadOlympicCountries();
+    this.olympicService.loading$?.subscribe((loading: boolean | null) => {
+      this.loading = !!loading;
     });
-    this.olympicService.error$.subscribe((err) => {
-      this.error = err;
+    this.olympicService.error$?.subscribe((err: string | null) => {
+      this.error = err || '';
     });
-    this.olympicService.countries$.subscribe((data) => {
-      if (data && data.length > 0) {
+    this.olympicService.countries$?.subscribe((data: Country[] | null) => {
+      if (Array.isArray(data) && data.length > 0) {
         this.totalJOs = Array.from(
           new Set(
             data
@@ -107,7 +109,9 @@ export class HomeComponent implements OnInit {
               const countryName = pieChart.data.labels
                 ? pieChart.data.labels[firstPoint.index]
                 : '';
-              this.router.navigate(['country', countryName]);
+              this.router.navigate(['country', countryName]).catch((err) => {
+                this.errorHandler.handleError(err);
+              });
             }
           }
         },

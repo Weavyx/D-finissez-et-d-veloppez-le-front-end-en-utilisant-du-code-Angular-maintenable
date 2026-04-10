@@ -1,7 +1,7 @@
 # ARCHITECTURE.md
 
 ## Objectif
-Ce document présente l’organisation, les choix d’architecture et les fichiers à créer pour garantir la clarté, l’évolutivité et la maintenabilité du front-end Angular, en s’appuyant sur les pratiques Angular modernes (standalone components, routage standalone, signals, OnPush, etc.).
+Ce document présente l’organisation, les choix d’architecture et les fichiers à créer pour garantir la clarté, l’évolutivité et la maintenabilité du front-end Angular, en s’appuyant sur les pratiques Angular modernes (standalone components, routage standalone, signaux, OnPush, etc.).
 
 ---
 
@@ -61,12 +61,12 @@ D-finissez-et-d-veloppez-le-front-end-en-utilisant-du-code-Angular-maintenable/
 
 ## Explications par dossier (Angular moderne)
 - **models/** : Interfaces TypeScript pour le typage strict des données métier.
-- **services/** : Services Angular pour la logique métier, accès données, gestion d’erreur.
+- **services/** : Services Angular pour la logique métier, accès donné, gestion d’erreur.
 - **types/** : Types utilitaires, enums, typage des réponses.
 - **shared/** : Composants, pipes, directives réutilisables, tous standalone.
 - **components/** : Composants UI spécifiques, standalone, pour le découpage d’éléments complexes.
 - **pages/** : Composants de pages, standalone, chaque dossier représente une vue principale.
-- **assets/** : Images, données mockées.
+- **assets/** : Images, données mocks.
 - **environments/** : Configurations d’environnement Angular.
 
 ---
@@ -76,7 +76,7 @@ D-finissez-et-d-veloppez-le-front-end-en-utilisant-du-code-Angular-maintenable/
 - **Signals** : Gestion d’état locale réactive, plus simple et performante que RxJS pour les cas courants.
 - **ChangeDetection OnPush** : Tous les composants utilisent la stratégie OnPush pour des performances optimales.
 - **Typage strict** : Interfaces et types pour fiabiliser le code.
-- **Réutilisabilité** : Mutualisation des éléments dans `shared/`.
+- **Generalisability** : Mutualisation des éléments dans `shared/`.
 - **Modularité** : Ajout facile de nouvelles fonctionnalités, découplage maximal.
 - **Préparation à l’API** : Services prêts pour l’intégration d’un back-end, injection moderne.
 - **Maintenance facilitée** : Structure claire, évolutive, adaptée à la CI/CD.
@@ -131,7 +131,7 @@ export class HomeComponent implements OnInit {
 - [ ] Mutualiser les composants/pipes/directives standalone dans `shared/`
 - [ ] Extraire les UI spécifiques standalone dans `components/`
 - [ ] Vérifier la cohérence des pages standalone dans `pages/`
-- [ ] Utiliser les signals pour la gestion d’état locale
+- [ ] Utiliser les signaux pour la gestion d’état locale
 - [ ] Appliquer la stratégie OnPush partout
 - [ ] Documenter et maintenir la structure dans `ARCHITECTURE.md`
 
