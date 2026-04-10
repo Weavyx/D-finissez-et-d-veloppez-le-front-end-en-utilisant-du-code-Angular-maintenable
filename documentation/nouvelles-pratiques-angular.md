@@ -32,7 +32,7 @@ Angular a introduit les standalone components pour simplifier la modularité et 
 ## 2. Signals (Gestion d’état réactive)
 
 **Pourquoi ce changement ?**
-RxJS est puissant mais complexe pour la gestion d’état local ou simple. Les signals offrent une alternative plus simple et plus performante pour la réactivité locale.
+RxJS est puissant, mais complexe pour la gestion d’état local ou simple. Les signaux offrent une alternative plus simple et plus performante pour la réactivité locale.
 
 **Ce que permet la nouvelle approche :**
 - Déclarer des signaux réactifs (`signal()`) pour gérer l’état local
@@ -40,7 +40,7 @@ RxJS est puissant mais complexe pour la gestion d’état local ou simple. Les s
 - Remplacer les usages simples de BehaviorSubject ou Observable
 
 **Avantages :**
-- Syntaxe plus simple et plus lisible
+- syntaxe plus simple et plus lisible
 - Moins de code boilerplate
 - Performances accrues (moins de subscriptions, pas de memory leaks)
 
@@ -234,7 +234,7 @@ Un style de code homogène facilite la maintenance et la collaboration. Angular 
   - Les nouveaux abonnés reçoivent toujours la dernière valeur (replay).
   - Peut être utilisé dans des contextes non Angular (Node.js, tests, etc.).
 - **Inconvénients :**
-  - Syntaxe plus verbeuse, nécessite la gestion des subscriptions (unsubscribe).
+  - syntaxe plus verbeuse, nécessite la gestion des subscriptions (unsubscribe).
   - Risque de memory leaks si les subscriptions ne sont pas nettoyées.
   - Moins intuitif pour la gestion d'état local simple.
   - Nécessite RxJS, donc une dépendance supplémentaire.
@@ -242,7 +242,7 @@ Un style de code homogène facilite la maintenance et la collaboration. Angular 
 **Signal (Angular 16+)**
 
 - **Avantages :**
-  - Syntaxe très simple et intégration native avec Angular (template, composants, DI).
+  - syntaxe très simple et intégration native avec Angular (template, composants, DI).
   - Pas besoin de gérer les subscriptions manuellement (pas de memory leaks).
   - Idéal pour la gestion d'état local ou partagé simple.
   - Performances accrues grâce à la réactivité fine-grainée.

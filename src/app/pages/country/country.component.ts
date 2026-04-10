@@ -8,10 +8,10 @@ import { ActivatedRoute, ParamMap, RouterModule } from '@angular/router';
 import Chart from 'chart.js/auto';
 import { Country } from '../../models/country.model';
 import { Participation } from '../../models/participation.model';
-import { CommonModule } from '@angular/common';
 import { OlympicDataService } from '../../services/olympic-data.service';
 import { ErrorMessageComponent } from '../../shared/error-message.component';
 import { LoadingIndicatorComponent } from '../../shared/loading-indicator.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-country',
@@ -28,28 +28,28 @@ import { LoadingIndicatorComponent } from '../../shared/loading-indicator.compon
 })
 export class CountryComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  private olympicService = inject(OlympicDataService);
+  private olympicService = inject(OlympicDataService) as OlympicDataService;
   public lineChart!: Chart<'line', string[], number>;
   public titlePage = '';
   public totalEntries = 0;
   public totalMedals = 0;
   public totalAthletes = 0;
-  public error: string | null = null;
+  public error = '';
   public loading = true;
 
   ngOnInit() {
     this.olympicService.loadOlympicCountries();
-    this.olympicService.loading$.subscribe((loading) => {
-      this.loading = loading;
+    this.olympicService.loading$?.subscribe((loading: boolean | null) => {
+      this.loading = !!loading;
     });
-    this.olympicService.error$.subscribe((err) => {
-      this.error = err;
+    this.olympicService.error$?.subscribe((err: string | null) => {
+      this.error = err || '';
     });
     let countryName: string | null = null;
     this.route.paramMap.subscribe((param: ParamMap) => {
       countryName = param.get('countryName');
-      this.olympicService.countries$.subscribe((data) => {
-        if (data && data.length > 0) {
+      this.olympicService.countries$?.subscribe((data: Country[] | null) => {
+        if (Array.isArray(data) && data.length > 0) {
           const selectedCountry = data.find(
             (i: Country) => i.country === countryName,
           );

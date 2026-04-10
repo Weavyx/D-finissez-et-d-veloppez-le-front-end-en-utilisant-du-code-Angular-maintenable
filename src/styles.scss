@@ -1,7 +1,4 @@
 /* You can add global styles to this file, and also import other style files */
-.heading {
-  flex-direction: column;
-}
 
 .center {
   display: flex;
@@ -28,7 +25,7 @@
     border: solid #0b868f 1px;
     border-radius: 10px;
     color: gray;
-    margin: 0px;
+    margin: 0;
 
     p {
       text-align: center;

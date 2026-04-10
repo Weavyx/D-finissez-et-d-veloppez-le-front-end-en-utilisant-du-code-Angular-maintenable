@@ -14,13 +14,13 @@ Synthétiser les problèmes, risques, anti-patterns et recommandations pour amé
 ---
 
 ## Synthèse des risques et dette technique
-| Constat | Impact | Priorité | Action recommandée | Fichier concerné |
-|---|---|---|---|---|
-| Absence de couches `models` et `services` | Couplage fort, duplication des règles métier | P1 | Introduire un service de données olympiques + modèles types partagés | src/app |
-| Modularité limitée | Évolution fonctionnelle coûteuse | P2 | Définir des frontières fonctionnelles (standalone components) | src/app |
-| Non-conformité lint globale | Risque d’échec CI, baisse de maintenabilité | P1 | Corriger `no-explicit-any`, `prefer-inject`, puis les cas restants | src/app/pages/home/home.component.ts, src/app/pages/country/country.component.ts, src/app/pages/not-found/not-found.component.ts |
-| Observabilité insuffisante | Diagnostic incident lent | P2 | Mettre en place un `ErrorHandler` central et une stratégie de journalisation | src/main.ts |
-| Test racine obsolète | Feedback qualité peu fiable | P1 | Aligner les assertions sur le comportement réel de `AppComponent` | src/app/app.component.spec.ts |
+| Constat                                   | Impact                                       | Priorité | Action recommandée                                                           | Fichier concerné                                                                                                                 |
+|-------------------------------------------|----------------------------------------------|----------|------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| Absence de couches `models` et `services` | Couplage fort, duplication des règles métier | P1       | Introduire un service de données olympiques + modèles types partagés         | src/app                                                                                                                          |
+| Modularité limitée                        | Évolution fonctionnelle coûteuse             | P2       | Définir des frontières fonctionnelles (standalone components)                | src/app                                                                                                                          |
+| Non-conformité lint globale               | Risque d’échec CI, baisse de maintenabilité  | P1       | Corriger `no-explicit-any`, `prefer-inject`, puis les cas restants           | src/app/pages/home/home.component.ts, src/app/pages/country/country.component.ts, src/app/pages/not-found/not-found.component.ts |
+| Observabilité insuffisante                | Diagnostic incident lent                     | P2       | Mettre en place un `ErrorHandler` central et une stratégie de journalisation | src/main.ts                                                                                                                      |
+| Test racine obsolète                      | Feedback qualité peu fiable                  | P1       | Aligner les assertions sur le comportement réel de `AppComponent`            | src/app/app.component.spec.ts                                                                                                    |
 
 ---
 
@@ -58,7 +58,7 @@ Synthétiser les problèmes, risques, anti-patterns et recommandations pour amé
 - Appels HTTP dans les composants : privilégier les services.
 - Logique métier dans les composants : extraire dans des services/facades.
 - Typage faible (`any`) : formaliser les interfaces.
-- Flux RxJS imperatifs : composer les flux, utiliser `async` pipe.
+- Flux RxJS impératifs : composer les flux, utiliser `async` pipe.
 - Gestion de cycle de vie des subscriptions : utiliser `takeUntilDestroyed`, `AsyncPipe`.
 - Utilisation de `.pipe()` vide : supprimer ou ajouter des opérateurs.
 - Intégration DOM imperative : utiliser `@ViewChild`, gérer le cycle de vie.
@@ -107,7 +107,7 @@ src/app/
 
 ### Checklist actionnable
 - [ ] Créer les dossiers et fichiers selon l’arborescence cible.
-- [ ] Extraire la logique métier et les accès données dans des services.
+- [ ] Extraire la logique métier et les accès donnés dans des services.
 - [ ] Formaliser les interfaces et types.
 - [ ] Mutualiser les éléments réutilisables.
 - [ ] Corriger les erreurs lint et typage.
