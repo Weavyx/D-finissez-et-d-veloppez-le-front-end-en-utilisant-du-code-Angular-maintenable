@@ -1,31 +1,26 @@
+<!-- Migration Angular 16.2.12 : utilisation des blocs de contrôle @if -->
 <h2>Olympic games app</h2>
 <hr />
-<app-loading-indicator
-  [@if]="loading"
-  aria-live="polite"
-  role="status"
-></app-loading-indicator>
-<app-error-message
-  [@if]="error"
-  [message]="error"
-  aria-live="assertive"
-  role="alert"
-></app-error-message>
-<div [@if]="!loading && !error">
-  <div>
-    <div class="center">
-      <div>{{ titlePage }}</div>
+<app-loading-indicator *ngIf="loading" aria-live="polite" role="status"></app-loading-indicator>
+<app-error-message *ngIf="error" [message]="error" aria-live="assertive" role="alert"></app-error-message>
+<div *ngIf="!loading && !error">
+  <div class="center">
+    <div>{{ titlePage }}</div>
+  </div>
+  <div class="split">
+    <div>
+      <p>Number of countries</p>
+      <p>{{ totalCountries }}</p>
     </div>
-    <div class="split">
-      <div>
-        <p>Number of countries</p>
-        <p>{{ totalCountries }}</p>
-      </div>
-      <div>
-        <p>Number of JOs</p>
-        <p>{{ totalJOs }}</p>
-      </div>
+    <div>
+      <p>Number of JOs</p>
+      <p>{{ totalJOs }}</p>
     </div>
   </div>
-  <canvas id="DashboardPieChart">{{ pieChart }}</canvas>
+  <div *ngIf="totalCountries > 0; else noData">
+    <canvas id="DashboardPieChart" aria-label="Pie chart showing medals per country" role="img">{{ pieChart }}</canvas>
+  </div>
+  <ng-template #noData>
+    <div class="center" role="status" aria-live="polite">No country data available.</div>
+  </ng-template>
 </div>
