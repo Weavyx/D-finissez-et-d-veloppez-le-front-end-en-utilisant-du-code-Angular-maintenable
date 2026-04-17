@@ -1,22 +1,24 @@
 import {
   Component,
-  OnInit,
-  inject,
   ChangeDetectionStrategy,
+  inject,
   AfterViewInit,
+  AfterViewChecked,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { ErrorHandler } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import Chart from 'chart.js/auto';
-import { Country } from '../../models/country.model.js';
-import { Participation } from '../../models/participation.model.js';
-
 import { OlympicDataService } from '../../services/olympic-data.service';
 import { ErrorHandlerService } from '../../services/error-handler.service';
 import { ErrorMessageComponent } from '../../shared/error-message.component';
 import { LoadingIndicatorComponent } from '../../shared/loading-indicator.component';
+import { TotalJOsPipe } from '../../shared/total-jos.pipe';
+import { Subscription } from 'rxjs';
+import { Country } from '../../models/country.model';
 
 @Component({
   selector: 'app-home',
@@ -28,67 +30,66 @@ import { LoadingIndicatorComponent } from '../../shared/loading-indicator.compon
     RouterModule,
     ErrorMessageComponent,
     LoadingIndicatorComponent,
+    TotalJOsPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements OnInit, AfterViewInit {
+export class HomeComponent implements AfterViewInit, AfterViewChecked, OnDestroy {
   public pieChart!: Chart<'pie', number[], string>;
-  public totalCountries = 0;
-  public totalJOs = 0;
-  public error = '';
-  titlePage = 'Medals per Country';
-  public loading = true;
-  private chartData: { countries: string[]; sumOfAllMedalsYears: number[] } | null = null;
-
+  @ViewChild('dashboardPieChart') pieChartRef!: ElementRef<HTMLCanvasElement>;
   private router = inject(Router);
   private olympicService = inject(OlympicDataService);
   private errorHandlerService = inject(ErrorHandlerService);
+  public error$;
+  public loading$;
+  public countries$;
+  titlePage = 'Medals per Country';
+  private countriesSub?: Subscription;
+  private latestCountries: Country[] = [];
+  private chartBuilt = false;
 
-  ngOnInit() {
-    (this.olympicService as OlympicDataService).loadOlympicCountries();
-    this.olympicService.loading$?.subscribe((loading: boolean | null) => {
-      this.loading = !!loading;
-    });
-    this.errorHandlerService.error$.subscribe((err: string) => {
-      this.error = err || '';
-    });
-    this.olympicService.error$?.subscribe((err: string | null) => {
-      if (err) {
-        this.errorHandlerService.handleError(err);
-      }
-    });
-    this.olympicService.countries$?.subscribe((data: Country[] | null) => {
-      if (Array.isArray(data) && data.length > 0) {
-        this.totalJOs = Array.from(
-          new Set(
-            data
-              .map((i: Country) =>
-                i.participations.map((f: Participation) => f.year),
-              )
-              .flat(),
-          ),
-        ).length;
-        const countries: string[] = data.map((i: Country) => i.country);
-        this.totalCountries = countries.length;
-        const medals = data.map((i: Country) =>
-          i.participations.map((i: Participation) => i.medalsCount),
-        );
-        const sumOfAllMedalsYears = medals.map((i: number[]) =>
-          i.reduce((acc: number, val: number) => acc + val, 0),
-        );
-        this.chartData = { countries, sumOfAllMedalsYears };
-      }
-    });
+  constructor() {
+    this.error$ = this.errorHandlerService.error$;
+    this.loading$ = this.olympicService.loading$;
+    this.countries$ = this.olympicService.countries$;
   }
 
   ngAfterViewInit() {
-    if (this.chartData) {
-      this.buildPieChart(this.chartData.countries, this.chartData.sumOfAllMedalsYears);
+    // Subscribe and store latest countries data
+    this.countriesSub = this.countries$.subscribe((countries) => {
+      this.latestCountries = countries || [];
+      this.chartBuilt = false; // allow rebuild if data changes
+    });
+  }
+
+  ngAfterViewChecked() {
+    if (
+      this.pieChartRef &&
+      this.latestCountries &&
+      this.latestCountries.length > 0 &&
+      !this.chartBuilt
+    ) {
+      const countryNames = this.latestCountries.map((c) => c.country);
+      const sumOfAllMedalsYears = this.latestCountries.map((c) =>
+        c.participations.reduce((acc: number, p: { medalsCount: number }) => acc + p.medalsCount, 0)
+      );
+      this.buildPieChart(countryNames, sumOfAllMedalsYears);
+      this.chartBuilt = true;
     }
   }
 
+  ngOnDestroy() {
+    this.countriesSub?.unsubscribe();
+  }
+
   buildPieChart(countries: string[], sumOfAllMedalsYears: number[]) {
-    const pieChart = new Chart('DashboardPieChart', {
+    if (this.pieChart) {
+      this.pieChart.destroy();
+    }
+    if (!this.pieChartRef?.nativeElement) {
+      return;
+    }
+    const pieChart = new Chart(this.pieChartRef.nativeElement, {
       type: 'pie',
       data: {
         labels: countries,
