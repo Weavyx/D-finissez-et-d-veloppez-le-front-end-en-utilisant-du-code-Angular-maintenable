@@ -1,0 +1,9 @@
+<ng-container *ngIf="data && data.labels && data.labels.length > 0; else noData">
+  <div role="img" aria-label="Graphique des médailles" tabindex="0">
+    Graphique des médailles (à implémenter)
+  </div>
+</ng-container>
+<ng-template #noData>
+  <div class="center" role="status" aria-live="polite">No medal data available.</div>
+</ng-template>
+

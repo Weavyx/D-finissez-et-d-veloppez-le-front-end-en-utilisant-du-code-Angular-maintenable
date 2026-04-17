@@ -50,8 +50,8 @@ export class OlympicDataService {
   }
 
   /** Pour forcer un rafraîchissement
-  refreshOlympicCountries(): void {
-    this.loaded = false;
+   refreshOlympicCountries(): void {
+   this.loaded = false;
    this.loadOlympicCountries();
   }*/
 }

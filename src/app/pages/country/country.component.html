@@ -1,41 +1,35 @@
-<app-loading-indicator
-  [@if]="loading"
-  aria-live="polite"
-  role="status"
-></app-loading-indicator>
-<app-error-message
-  [@if]="error"
-  [message]="error"
-  aria-live="assertive"
-  role="alert"
-></app-error-message>
-<div [@if]="!loading && !error">
-  <div>
-    <div class="center">
-      <div>{{ titlePage }}</div>
-    </div>
-    <div class="split">
-      <div>
-        <p>Number of entries</p>
-        <p>{{ totalEntries }}</p>
-      </div>
-      <div>
-        <p>Total Number of medals</p>
-        <p>{{ totalMedals }}</p>
-      </div>
-      <div>
-        <p>Total Number of athletes</p>
-        <p>{{ totalAthletes }}</p>
-      </div>
-    </div>
-  </div>
-  <div class="chart-container wrapper-container">
-    <div class="container">
-      <canvas id="countryChart">{{ lineChart }}</canvas>
-      <h2>Date</h2>
-    </div>
-  </div>
+<app-loading-indicator *ngIf="loading" aria-live="polite" role="status"></app-loading-indicator>
+<app-error-message *ngIf="error" [message]="error" aria-live="assertive" role="alert"></app-error-message>
+<div *ngIf="!loading && !error">
   <div class="center">
-    <a routerLink="">Go back</a>
+    <div>{{ titlePage }}</div>
+  </div>
+  <div class="split">
+    <div>
+      <p>Number of entries</p>
+      <p>{{ totalEntries }}</p>
+    </div>
+    <div>
+      <p>Total Number of medals</p>
+      <p>{{ totalMedals }}</p>
+    </div>
+    <div>
+      <p>Total Number of athletes</p>
+      <p>{{ totalAthletes }}</p>
+    </div>
+  </div>
+  <div *ngIf="totalEntries > 0; else noData">
+    <div class="chart-container wrapper-container">
+      <div class="container">
+        <canvas id="countryChart" aria-label="Line chart showing medals per year for this country" role="img">{{ lineChart }}</canvas>
+        <h2>Date</h2>
+      </div>
+    </div>
+  </div>
+  <ng-template #noData>
+    <div class="center" role="status" aria-live="polite">No participation data available for this country.</div>
+  </ng-template>
+  <div class="center">
+    <a routerLink="" aria-label="Back to home">Go back</a>
   </div>
 </div>

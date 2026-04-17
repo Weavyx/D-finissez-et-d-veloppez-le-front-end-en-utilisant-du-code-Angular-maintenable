@@ -1,0 +1,10 @@
+<ng-container *ngIf="athletes && athletes.length > 0; else noData">
+  <ul role="list" tabindex="0">
+    <li *ngFor="let athlete of athletes; trackBy: trackByName" role="listitem">
+      {{ athlete?.name ?? '' }}
+    </li>
+  </ul>
+</ng-container>
+<ng-template #noData>
+  <div class="center" role="status" aria-live="polite">No athlete data available.</div>
+</ng-template>

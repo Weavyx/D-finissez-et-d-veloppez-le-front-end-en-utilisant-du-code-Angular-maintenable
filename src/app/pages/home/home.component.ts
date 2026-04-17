@@ -3,6 +3,7 @@ import {
   OnInit,
   inject,
   ChangeDetectionStrategy,
+  AfterViewInit,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { ErrorHandler } from '@angular/core';
@@ -29,13 +30,14 @@ import { LoadingIndicatorComponent } from '../../shared/loading-indicator.compon
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit {
   public pieChart!: Chart<'pie', number[], string>;
   public totalCountries = 0;
   public totalJOs = 0;
   public error = '';
   titlePage = 'Medals per Country';
   public loading = true;
+  private chartData: { countries: string[]; sumOfAllMedalsYears: number[] } | null = null;
 
   private router = inject(Router);
   private olympicService = inject(OlympicDataService);
@@ -44,12 +46,15 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     (this.olympicService as OlympicDataService).loadOlympicCountries();
     this.olympicService.loading$?.subscribe((loading: boolean | null) => {
+      console.log('loading$', loading); // DEBUG
       this.loading = !!loading;
     });
     this.olympicService.error$?.subscribe((err: string | null) => {
+      console.log('error$', err); // DEBUG
       this.error = err || '';
     });
     this.olympicService.countries$?.subscribe((data: Country[] | null) => {
+      console.log('countries$', data); // DEBUG
       if (Array.isArray(data) && data.length > 0) {
         this.totalJOs = Array.from(
           new Set(
@@ -68,9 +73,15 @@ export class HomeComponent implements OnInit {
         const sumOfAllMedalsYears = medals.map((i: number[]) =>
           i.reduce((acc: number, val: number) => acc + val, 0),
         );
-        this.buildPieChart(countries, sumOfAllMedalsYears);
+        this.chartData = { countries, sumOfAllMedalsYears };
       }
     });
+  }
+
+  ngAfterViewInit() {
+    if (this.chartData) {
+      this.buildPieChart(this.chartData.countries, this.chartData.sumOfAllMedalsYears);
+    }
   }
 
   buildPieChart(countries: string[], sumOfAllMedalsYears: number[]) {
