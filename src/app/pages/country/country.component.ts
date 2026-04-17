@@ -1,14 +1,10 @@
 import {
   Component,
   ChangeDetectionStrategy,
-  inject,
-  OnInit,
-  AfterViewInit
+  inject
 } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import Chart from 'chart.js/auto';
 import { Country } from '../../models/country.model';
-import { Participation } from '../../models/participation.model';
 import { OlympicDataService } from '../../services/olympic-data.service';
 import { ErrorHandlerService } from '../../services/error-handler.service';
 import { ErrorMessageComponent } from '../../shared/error-message.component';
@@ -28,73 +24,28 @@ import { CommonModule } from '@angular/common';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CountryComponent implements OnInit, AfterViewInit {
+export class CountryComponent {
   private route = inject(ActivatedRoute);
-  private olympicService = inject(OlympicDataService) as OlympicDataService;
+  private olympicService = inject(OlympicDataService);
   private errorHandlerService = inject(ErrorHandlerService);
-  public lineChart!: Chart<'line', string[], number>;
-  public titlePage = '';
-  public totalEntries = 0;
-  public totalMedals = 0;
-  public totalAthletes = 0;
-  public error = '';
-  public loading = true;
-  private chartData: { years: number[]; medals: string[] } | null = null;
 
-  ngOnInit() {
-    this.olympicService.loadOlympicCountries();
-    this.olympicService.loading$?.subscribe((loading: boolean | null) => {
-      this.loading = !!loading;
-    });
-    this.errorHandlerService.error$.subscribe((err: string) => {
-      this.error = err || '';
-    });
-    this.olympicService.error$?.subscribe((err: string | null) => {
-      if (err) {
-        this.errorHandlerService.handleError(err);
-      }
-    });
-    const countryName: string | null = this.route.snapshot.paramMap.get('countryName');
-    this.olympicService.countries$?.subscribe((data: Country[] | null) => {
-      if (Array.isArray(data) && data.length > 0) {
-        const selectedCountry = data.find((i: Country) => i.country === countryName);
-        if (selectedCountry) {
-          this.titlePage = selectedCountry.country;
-          const participations = selectedCountry.participations;
-          this.totalEntries = participations.length;
-          const years = participations.map((i: Participation) => i.year);
-          const medals = participations.map((i: Participation) => i.medalsCount.toString());
-          this.totalMedals = medals.reduce((accumulator: number, item: string) => accumulator + parseInt(item), 0);
-          const nbAthletes = participations.map((i: Participation) => i.athleteCount.toString());
-          this.totalAthletes = nbAthletes.reduce((accumulator: number, item: string) => accumulator + parseInt(item), 0);
-          this.chartData = { years, medals };
-        }
-      }
-    });
+  public loading$ = this.olympicService.loading$;
+  public error$ = this.errorHandlerService.error$;
+  public countries$ = this.olympicService.countries$;
+
+  public countryName: string | null = this.route.snapshot.paramMap.get('countryName');
+
+  // Méthodes utilitaires pour le template
+  getCountry(data: Country[] | null): Country | undefined {
+    return data?.find((i: Country) => i.country === this.countryName);
   }
-
-  ngAfterViewInit() {
-    if (this.chartData) {
-      this.buildChart(this.chartData.years, this.chartData.medals);
-    }
+  getTotalEntries(country: Country | undefined): number {
+    return country?.participations.length ?? 0;
   }
-
-  buildChart(years: number[], medals: string[]) {
-    this.lineChart = new Chart('countryChart', {
-      type: 'line',
-      data: {
-        labels: years,
-        datasets: [
-          {
-            label: 'medals',
-            data: medals,
-            backgroundColor: '#0b868f',
-          },
-        ],
-      },
-      options: {
-        aspectRatio: 2.5,
-      },
-    });
+  getTotalMedals(country: Country | undefined): number {
+    return country?.participations.reduce((acc, p) => acc + p.medalsCount, 0) ?? 0;
+  }
+  getTotalAthletes(country: Country | undefined): number {
+    return country?.participations.reduce((acc, p) => acc + p.athleteCount, 0) ?? 0;
   }
 }

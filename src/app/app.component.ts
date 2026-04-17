@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { OlympicDataService } from './services/olympic-data.service';
 
 @Component({
   selector: 'app-root',
@@ -8,4 +9,10 @@ import { RouterOutlet } from '@angular/router';
   standalone: true,
   imports: [RouterOutlet],
 })
-export class AppComponent {}
+export class AppComponent implements OnInit {
+  private olympicService = inject(OlympicDataService);
+
+  ngOnInit() {
+    this.olympicService.loadOlympicCountries();
+  }
+}
