@@ -10,6 +10,7 @@ import Chart from 'chart.js/auto';
 import { Country } from '../../models/country.model';
 import { Participation } from '../../models/participation.model';
 import { OlympicDataService } from '../../services/olympic-data.service';
+import { ErrorHandlerService } from '../../services/error-handler.service';
 import { ErrorMessageComponent } from '../../shared/error-message.component';
 import { LoadingIndicatorComponent } from '../../shared/loading-indicator.component';
 import { CommonModule } from '@angular/common';
@@ -30,6 +31,7 @@ import { CommonModule } from '@angular/common';
 export class CountryComponent implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
   private olympicService = inject(OlympicDataService) as OlympicDataService;
+  private errorHandlerService = inject(ErrorHandlerService);
   public lineChart!: Chart<'line', string[], number>;
   public titlePage = '';
   public totalEntries = 0;
@@ -44,8 +46,13 @@ export class CountryComponent implements OnInit, AfterViewInit {
     this.olympicService.loading$?.subscribe((loading: boolean | null) => {
       this.loading = !!loading;
     });
-    this.olympicService.error$?.subscribe((err: string | null) => {
+    this.errorHandlerService.error$.subscribe((err: string) => {
       this.error = err || '';
+    });
+    this.olympicService.error$?.subscribe((err: string | null) => {
+      if (err) {
+        this.errorHandlerService.handleError(err);
+      }
     });
     const countryName: string | null = this.route.snapshot.paramMap.get('countryName');
     this.olympicService.countries$?.subscribe((data: Country[] | null) => {
