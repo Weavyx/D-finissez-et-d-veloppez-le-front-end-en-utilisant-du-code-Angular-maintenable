@@ -141,15 +141,39 @@ Ce plan d’action intègre toutes les instructions, audits et spécifications f
   - Supprimer tout code mort, imports inutiles, fichiers obsolètes.
 
 ### Checklist exhaustive pour la finalisation technique
-- [ ] Refactorer le chargement des données dans `AppComponent` (take(1), centralisation).
-- [ ] Adapter tous les composants pour consommer les données via le service centralisé.
-- [ ] Remplacer toutes les souscriptions manuelles par l’`async` pipe ou signals, ou s’assurer de leur nettoyage.
-- [ ] Rendre explicites tous les états UI (chargement, vide, erreur, succès) dans chaque page/composant.
-- [ ] Vérifier/corriger l’accessibilité sur tous les composants/pages.
-- [ ] Tester la responsive sur tous les breakpoints.
-- [ ] Nettoyer le code mort, les imports, les fichiers inutiles.
-- [ ] Vérifier la conformité à toutes les instructions, audits et spécifications fonctionnelles.
-- [ ] Préparer la PR de finalisation technique avec un message de commit clair et une checklist de validation.
+- [x] Refactorer le chargement des données dans `AppComponent` (take(1), centralisation).
+- [x] Adapter tous les composants pour consommer les données via le service centralisé.
+- [x] Remplacer toutes les souscriptions manuelles par l’`async` pipe ou signals, ou s’assurer de leur nettoyage.
+- [x] Rendre explicites tous les états UI (chargement, vide, erreur, succès) dans chaque page/composant.
+- [x] Vérifier/corriger l’accessibilité sur tous les composants/pages.
+- [x] Tester la responsive sur tous les breakpoints.
+- [x] Nettoyer le code mort, les imports, les fichiers inutiles.
+- [x] Vérifier la conformité à toutes les instructions, audits et spécifications fonctionnelles.
+- [x] Préparer la PR de finalisation technique avec un message de commit clair et une checklist de validation.
+
+---
+
+## 7. `feature/signal-homecomponent`
+- **Objectif** : Migrer HomeComponent pour consommer les données olympiques via Angular signals (et non plus via observable classique).
+- **Actions** :
+  - Créer la branche `feature/signal-homecomponent` depuis `feature/architecture-refactor`.
+  - Refactorer HomeComponent pour utiliser les Angular signals pour la donnée olympique (tout en gardant l’async pipe dans les autres composants/pages).
+  - Mettre à jour ou ajouter des tests unitaires pour HomeComponent si besoin.
+  - Mettre à jour la documentation technique (README.md, etc.) pour expliquer ce choix.
+  - Mettre à jour ce plan (plan-refonte.md) pour refléter la séquence réelle.
+  - Préparer une PR dédiée avec checklist de validation.
+- **Dépendances** : Finalisation technique (étape 6).
+- **Validation** : HomeComponent utilise les signals, tout fonctionne, documentation à jour.
+
+### Checklist PR signal-homecomponent
+- [x] Branche dédiée créée et à jour avec la branche principale.
+- [x] HomeComponent utilise Angular signals pour la donnée olympique.
+- [x] Les autres composants/pages utilisent toujours l’async pipe.
+- [x] Documentation technique mise à jour.
+- [x] plan-refonte.md mis à jour avec la nouvelle séquence.
+- [x] Revue de code effectuée et feedback intégré.
+
+---
 
 ### Points de vigilance
 - Ne jamais recharger le JSON plus d’une fois (vérifier navigation rapide).
@@ -165,7 +189,7 @@ Ce plan d’action intègre toutes les instructions, audits et spécifications f
 
 ----
 
-## 7. `feature/documentation-finale`
+## 8. `feature/documentation-finale`
 - **Objectif** : Documentation technique et utilisateur à jour.
 - **Actions** :
   - Mettre à jour `README.md`, `/documentation/`, `ARCHITECTURE.md`.
@@ -185,11 +209,12 @@ Ce plan d’action intègre toutes les instructions, audits et spécifications f
     - Le titre et la description de la PR
     - Le message de commit principal de la branche
 - [x] Valider chaque étape avant de passer à la suivante.
-- [ ] Mettre à jour la documentation.
-- [ ] Vérifier la conformité à toutes les instructions, audits et spécifications fonctionnelles.
-- [ ] Nettoyer le code mort, les imports, les fichiers inutiles.
-- [ ] Tester la navigation, la gestion d’erreur, la responsive, l’accessibilité.
-- [ ] Une fois la refonte validée, merger `feature/architecture-refactor` vers `main`.
+- [x] Migrer HomeComponent vers Angular signals (`feature/signal-homecomponent`).
+- [x] Mettre à jour la documentation.
+- [x] Vérifier la conformité à toutes les instructions, audits et spécifications fonctionnelles.
+- [x] Nettoyer le code mort, les imports, les fichiers inutiles.
+- [x] Tester la navigation, la gestion d’erreur, la responsive, l’accessibilité.
+- [x] Une fois la refonte validée, merger `feature/architecture-refactor` vers `main`.
 
 ----
 
