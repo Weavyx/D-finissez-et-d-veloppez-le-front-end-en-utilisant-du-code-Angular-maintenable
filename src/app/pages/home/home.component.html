@@ -1,26 +1,29 @@
 <!-- Migration Angular 16.2.12 : utilisation des blocs de contrôle @if -->
 <h2>Olympic games app</h2>
 <hr />
-<app-loading-indicator *ngIf="loading" aria-live="polite" role="status"></app-loading-indicator>
-<app-error-message *ngIf="error" [message]="error" aria-live="assertive" role="alert"></app-error-message>
-<div *ngIf="!loading && !error">
-  <div class="center">
-    <div>{{ titlePage }}</div>
-  </div>
-  <div class="split">
-    <div>
-      <p>Number of countries</p>
-      <p>{{ totalCountries }}</p>
+
+<app-loading-indicator *ngIf="loading$ | async" aria-live="polite" role="status"></app-loading-indicator>
+<app-error-message *ngIf="error$ | async as errorMsg" [message]="errorMsg" aria-live="assertive" role="alert"></app-error-message>
+<ng-container *ngIf="(loading$ | async) === false && !(error$ | async)">
+  <ng-container *ngIf="countries$ | async as countries">
+    <div class="center">
+      <div>{{ titlePage }}</div>
     </div>
-    <div>
-      <p>Number of JOs</p>
-      <p>{{ totalJOs }}</p>
+    <div class="split">
+      <div>
+        <p>Number of countries</p>
+        <p>{{ countries.length }}</p>
+      </div>
+      <div>
+        <p>Number of JOs</p>
+        <p>{{ countries | totalJOs }}</p>
+      </div>
     </div>
-  </div>
-  <div *ngIf="totalCountries > 0; else noData">
-    <canvas id="DashboardPieChart" aria-label="Pie chart showing medals per country" role="img">{{ pieChart }}</canvas>
-  </div>
-  <ng-template #noData>
-    <div class="center" role="status" aria-live="polite">No country data available.</div>
-  </ng-template>
-</div>
+    <div *ngIf="countries.length > 0; else noData">
+      <canvas #dashboardPieChart style="min-width:400px;min-height:300px;display:block;background:#fff;border:1px solid #ccc" aria-label="Pie chart showing medals per country" role="img"></canvas>
+    </div>
+    <ng-template #noData>
+      <div class="center" role="status" aria-live="polite">No country data available.</div>
+    </ng-template>
+  </ng-container>
+</ng-container>
