@@ -48,7 +48,7 @@ L'organisation du code est la suivante :
 - **Logging uniforme** : Tous les logs passent par LoggerService, jamais directement par `console.log`.
 - **États UI explicites** : Les états de chargement et d’erreur sont affichés via des composants dédiés (`LoadingIndicatorComponent`, `ErrorMessageComponent`).
 - **Accessibilité** : Les composants d’état utilisent les attributs ARIA et role appropriés pour l’accessibilité.
-- **Signals** : Utilisés uniquement si pertinent pour la gestion d’état locale réactive (pas pour les flux HTTP).
+- **Signals** : Utilisés dans HomeComponent pour la gestion d’état locale réactive (données olympiques), les autres composants utilisent l’async pipe.
 
 ## Centralisation de la donnée olympique
 
@@ -82,6 +82,25 @@ export class HomeComponent implements OnInit {
 - Le service garantit un seul chargement depuis l'API/mock.
 - Tous les composants accèdent à la donnée centralisée, même après le chargement initial.
 - Les états de chargement et d'erreur sont exposés pour l'UI.
+
+**Exemple d'utilisation des signals dans HomeComponent :**
+
+```typescript
+import { toSignal } from '@angular/core/rxjs-interop';
+import { computed } from '@angular/core';
+
+export class HomeComponent {
+  public countries = toSignal(this.olympicService.countries$, { initialValue: [] });
+  public loading = toSignal(this.olympicService.loading$, { initialValue: true });
+  public error = toSignal(this.errorHandlerService.error$, { initialValue: null });
+
+  public numberOfCountries = computed(() => (this.countries() ?? []).length);
+  public numberOfJOs = computed(() => (this.countries() ?? []).reduce((acc, c) => acc + (c.participations?.length ?? 0), 0));
+}
+```
+
+- HomeComponent utilise les Angular signals pour la donnée olympique.
+- Les autres composants/pages continuent d’utiliser l’async pipe.
 
 ## Documentation
 
