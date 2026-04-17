@@ -1,35 +1,39 @@
-<app-loading-indicator *ngIf="loading" aria-live="polite" role="status"></app-loading-indicator>
-<app-error-message *ngIf="error" [message]="error" aria-live="assertive" role="alert"></app-error-message>
-<div *ngIf="!loading && !error">
-  <div class="center">
-    <div>{{ titlePage }}</div>
-  </div>
-  <div class="split">
-    <div>
-      <p>Number of entries</p>
-      <p>{{ totalEntries }}</p>
-    </div>
-    <div>
-      <p>Total Number of medals</p>
-      <p>{{ totalMedals }}</p>
-    </div>
-    <div>
-      <p>Total Number of athletes</p>
-      <p>{{ totalAthletes }}</p>
-    </div>
-  </div>
-  <div *ngIf="totalEntries > 0; else noData">
-    <div class="chart-container wrapper-container">
-      <div class="container">
-        <canvas id="countryChart" aria-label="Line chart showing medals per year for this country" role="img">{{ lineChart }}</canvas>
-        <h2>Date</h2>
+<app-loading-indicator *ngIf="loading$ | async" aria-live="polite" role="status"></app-loading-indicator>
+<app-error-message *ngIf="error$ | async as errorMsg" [message]="errorMsg" aria-live="assertive" role="alert"></app-error-message>
+<ng-container *ngIf="(loading$ | async) === false && !(error$ | async)">
+  <ng-container *ngIf="countries$ | async as countries">
+    <ng-container *ngIf="getCountry(countries) as country">
+      <div class="center">
+        <div>{{ country.country }}</div>
       </div>
-    </div>
-  </div>
-  <ng-template #noData>
-    <div class="center" role="status" aria-live="polite">No participation data available for this country.</div>
-  </ng-template>
+      <div class="split">
+        <div>
+          <p>Number of entries</p>
+          <p>{{ getTotalEntries(country) }}</p>
+        </div>
+        <div>
+          <p>Total Number of medals</p>
+          <p>{{ getTotalMedals(country) }}</p>
+        </div>
+        <div>
+          <p>Total Number of athletes</p>
+          <p>{{ getTotalAthletes(country) }}</p>
+        </div>
+      </div>
+      <div *ngIf="getTotalEntries(country) > 0; else noData">
+        <div class="chart-container wrapper-container">
+          <div class="container">
+            <canvas id="countryChart" aria-label="Line chart showing medals per year for this country" role="img">{{ lineChart }}</canvas>
+            <h2>Date</h2>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <ng-template #noData>
+      <div class="center" role="status" aria-live="polite">No participation data available for this country.</div>
+    </ng-template>
+  </ng-container>
   <div class="center">
     <a routerLink="" aria-label="Back to home">Go back</a>
   </div>
-</div>
+</ng-container>
