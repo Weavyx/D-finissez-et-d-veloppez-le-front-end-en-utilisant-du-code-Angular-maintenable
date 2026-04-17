@@ -14,6 +14,7 @@ import { Country } from '../../models/country.model.js';
 import { Participation } from '../../models/participation.model.js';
 
 import { OlympicDataService } from '../../services/olympic-data.service';
+import { ErrorHandlerService } from '../../services/error-handler.service';
 import { ErrorMessageComponent } from '../../shared/error-message.component';
 import { LoadingIndicatorComponent } from '../../shared/loading-indicator.component';
 
@@ -41,20 +42,22 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   private router = inject(Router);
   private olympicService = inject(OlympicDataService);
-  private errorHandler = inject(ErrorHandler);
+  private errorHandlerService = inject(ErrorHandlerService);
 
   ngOnInit() {
     (this.olympicService as OlympicDataService).loadOlympicCountries();
     this.olympicService.loading$?.subscribe((loading: boolean | null) => {
-      console.log('loading$', loading); // DEBUG
       this.loading = !!loading;
     });
-    this.olympicService.error$?.subscribe((err: string | null) => {
-      console.log('error$', err); // DEBUG
+    this.errorHandlerService.error$.subscribe((err: string) => {
       this.error = err || '';
     });
+    this.olympicService.error$?.subscribe((err: string | null) => {
+      if (err) {
+        this.errorHandlerService.handleError(err);
+      }
+    });
     this.olympicService.countries$?.subscribe((data: Country[] | null) => {
-      console.log('countries$', data); // DEBUG
       if (Array.isArray(data) && data.length > 0) {
         this.totalJOs = Array.from(
           new Set(
@@ -121,7 +124,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
                 ? pieChart.data.labels[firstPoint.index]
                 : '';
               this.router.navigate(['country', countryName]).catch((err) => {
-                this.errorHandler.handleError(err);
+                this.errorHandlerService.handleError(err);
               });
             }
           }

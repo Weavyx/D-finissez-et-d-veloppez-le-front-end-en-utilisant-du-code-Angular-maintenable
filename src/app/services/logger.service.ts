@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 export class LoggerService {
   log(message: string): void {
     // Journalisation améliorée (future extension : envoi serveur, stockage, etc.)
-    console.log('[LOG]', message);
+    // Suppression du console.log pour production
+    // Exemple : envoyer à un serveur ou stocker localement
   }
 }
