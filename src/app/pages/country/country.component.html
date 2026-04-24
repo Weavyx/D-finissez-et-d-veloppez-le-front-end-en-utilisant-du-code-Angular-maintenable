@@ -17,19 +17,15 @@
         <p>{{ getTotalAthletes(country) }}</p>
       </div>
     </div>
-    <div *ngIf="getTotalEntries(country) > 0; else noData">
-      <div class="chart-container wrapper-container">
-        <div class="container">
-          <canvas #countryChart id="countryChart" aria-label="Line chart showing medals per year for this country" role="img"></canvas>
-          <h2>Date</h2>
-        </div>
-      </div>
-    </div>
   </ng-container>
-  <ng-template #noData>
-    <div class="center" role="status" aria-live="polite">No participation data available for this country.</div>
-  </ng-template>
   <div class="center">
     <a routerLink="" aria-label="Back to home">Go back</a>
   </div>
 </ng-container>
+<div [hidden]="!chartVisible" class="chart-container wrapper-container">
+  <div class="container">
+    <canvas #countryChart id="countryChart" aria-label="Line chart showing medals per year for this country" role="img"></canvas>
+    <h2>Date</h2>
+  </div>
+</div>
+<div *ngIf="chartNoData" class="center" role="status" aria-live="polite">No participation data available for this country.</div>
