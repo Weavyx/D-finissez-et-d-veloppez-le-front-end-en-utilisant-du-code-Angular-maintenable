@@ -1,143 +1,135 @@
 # ARCHITECTURE.md
 
 ## Objectif
-Ce document présente l’organisation, les choix d’architecture et les fichiers à créer pour garantir la clarté, l’évolutivité et la maintenabilité du front-end Angular, en s’appuyant sur les pratiques Angular modernes (standalone components, routage standalone, signaux, OnPush, etc.).
+
+Ce document décrit l'organisation, les choix d'architecture et les patterns techniques du projet Angular 16.2.12 Olympic Games App.
 
 ---
 
-## Structure complète du projet (Angular moderne)
+## Structure du projet
+
 ```
-D-finissez-et-d-veloppez-le-front-end-en-utilisant-du-code-Angular-maintenable/
-  ...fichiers racine (config, documentation)...
-  src/
-    index.html
-    favicon.ico
-    styles.scss
-    main.ts
-    polyfills.ts
-    test.ts
-    app/
-      app.component.ts/.html/.scss/.spec.ts # Composant racine (standalone)
-      app.routes.ts                        # Définition des routes (standalone)
-      pages/
-        home/
-          home.component.ts/.html/.scss/.spec.ts # Page d'accueil (standalone)
-        country/
-          country.component.ts/.html/.scss/.spec.ts # Page pays (standalone)
-        not-found/
-          not-found.component.ts/.html/.scss/.spec.ts # Page erreur 404 (standalone)
-      models/
-        olympic.model.ts          # Interface Olympic, Participation
-        country.model.ts          # Interface pays
-        athlete.model.ts          # Interface athlète
-      services/
-        olympic-data.service.ts   # Service accès données olympiques
-        error-handler.service.ts   # Service gestion d'erreur
-        logger.service.ts          # Service journalisation
-      types/
-        filter.type.ts            # Types utilitaires
-        enum.ts                   # Enumérations
-        response.type.ts          # Typage réponse HTTP/mock
-      shared/
-        loading-indicator.component.ts  # Composant état de chargement (standalone)
-        error-message.component.ts      # Composant affichage erreurs (standalone)
-        medal.pipe.ts                   # Pipe format médailles (standalone)
-        country-flag.directive.ts       # Directive drapeau pays (standalone)
-      components/
-        country-summary.component.ts    # UI résumé pays (standalone)
-        medal-chart.component.ts        # UI graphique médailles (standalone)
-        athlete-list.component.ts       # UI liste athlètes (standalone)
-    assets/
-      images/
-        teleSport.png
-      mock/
-        olympic.json
-    environments/
-      environment.ts
-      environment.prod.ts
+src/app/
+├── pages/
+│   ├── home/           # Dashboard (pie chart, stats globales)
+│   ├── country/        # Détail pays (line chart, stats par pays)
+│   └── not-found/      # Page 404
+├── components/
+│   ├── country-summary.component.ts
+│   ├── medal-chart.component.ts
+│   └── athlete-list.component.ts
+├── services/
+│   ├── olympic-data.service.ts    # Chargement et diffusion des données
+│   ├── error-handler.service.ts   # Gestion centralisée des erreurs
+│   └── logger.service.ts          # Journalisation
+├── models/
+│   ├── country.model.ts           # Interface Country
+│   ├── participation.model.ts     # Interface Participation
+│   └── athlete.model.ts           # Interface Athlete
+├── shared/
+│   ├── error-message.component.ts
+│   ├── loading-indicator.component.ts
+│   ├── medal.pipe.ts
+│   ├── total-jos.pipe.ts
+│   └── country-flag.directive.ts
+└── types/
+    ├── filter.type.ts
+    ├── enum.ts
+    └── response.type.ts
 ```
 
 ---
 
-## Explications par dossier (Angular moderne)
-- **models/** : Interfaces TypeScript pour le typage strict des données métier.
-- **services/** : Services Angular pour la logique métier, accès donné, gestion d’erreur.
-- **types/** : Types utilitaires, enums, typage des réponses.
-- **shared/** : Composants, pipes, directives réutilisables, tous standalone.
-- **components/** : Composants UI spécifiques, standalone, pour le découpage d’éléments complexes.
-- **pages/** : Composants de pages, standalone, chaque dossier représente une vue principale.
-- **assets/** : Images, données mocks.
-- **environments/** : Configurations d’environnement Angular.
+## Principes appliqués
+
+### Standalone components
+Tous les composants, pipes et directives utilisent `standalone: true`. Aucun `NgModule`. Le routage utilise `loadComponent` pour le lazy loading.
+
+### ChangeDetectionStrategy.OnPush
+`CountryComponent` utilise `OnPush`. `HomeComponent` sera migré lors de l'étape 10 du plan de refonte.
+
+### Typage strict
+Aucun `any`. Toutes les données sont typées via les interfaces dans `models/`.
+
+### Gestion des erreurs
+`ErrorHandlerService` (implémente `ErrorHandler`) centralise la capture et la diffusion des erreurs via un `BehaviorSubject<string>`. `LoggerService` prend en charge toute journalisation. Aucun `console.log` ou `console.error` dans le code applicatif.
 
 ---
 
-## Principes et avantages (Angular moderne)
-- **Standalone components** : Suppression des modules, chaque composant/directive/pipe est autonome et importable directement.
-- **Signals** : Gestion d’état locale réactive, plus simple et performante que RxJS pour les cas courants.
-- **ChangeDetection OnPush** : Tous les composants utilisent la stratégie OnPush pour des performances optimales.
-- **Typage strict** : Interfaces et types pour fiabiliser le code.
-- **Generalisability** : Mutualisation des éléments dans `shared/`.
-- **Modularité** : Ajout facile de nouvelles fonctionnalités, découplage maximal.
-- **Préparation à l’API** : Services prêts pour l’intégration d’un back-end, injection moderne.
-- **Maintenance facilitée** : Structure claire, évolutive, adaptée à la CI/CD.
-- **Gestion centralisée des erreurs et du logging** :
-  - Toutes les erreurs sont capturées par un service ErrorHandlerService global, qui utilise LoggerService pour la journalisation.
-  - Aucun usage direct de `console.log` dans le code applicatif.
-- **États UI explicites et accessibilité** :
-  - Les états de chargement et d’erreur sont affichés via des composants dédiés (`LoadingIndicatorComponent`, `ErrorMessageComponent`).
-  - Les composants d’état utilisent les attributs ARIA et role appropriés pour garantir l’accessibilité (notamment pour les lecteurs d’écran).
+## Centralisation de la donnée olympique
 
----
-
-## Centralisation de la donnée olympique (BehaviorSubject)
-
-Le service `OlympicDataService` centralise le chargement des données olympiques via un `BehaviorSubject<Country[] | null>`. Cette approche garantit :
-- Un seul chargement des données depuis l’API/mock pour toute l’application.
-- Une diffusion réactive de la donnée à tous les composants consommateurs.
-- Une gestion centralisée des états de chargement et d’erreur.
-
-**Exemple d’utilisation dans un composant** :
+`OlympicDataService` expose un `BehaviorSubject<Country[] | null>` initialisé à `null`. Le chargement HTTP est déclenché **une seule fois** depuis `AppComponent.ngOnInit` via `loadOlympicCountries().pipe(take(1)).subscribe()`. Un flag `loaded` empêche tout rechargement accidentel.
 
 ```typescript
-@Component({ /* ... */ })
-export class HomeComponent implements OnInit {
-  public loading = true;
-  public error: string | null = null;
-  public totalCountries = 0;
-  private olympicService = inject(OlympicDataService);
+// OlympicDataService — pattern actuel
+private countriesSubject = new BehaviorSubject<Country[] | null>(null);
 
-  ngOnInit() {
-    this.olympicService.loadOlympicCountries();
-    this.olympicService.loading$.subscribe((loading) => this.loading = loading);
-    this.olympicService.error$.subscribe((err) => this.error = err);
-    this.olympicService.countries$.subscribe((data) => {
-      if (data) this.totalCountries = data.length;
-    });
-  }
+get countries$(): Observable<Country[] | null> {
+  return this.countriesSubject.asObservable();
+}
+
+loadOlympicCountries(): Observable<Country[] | null> {
+  if (this.loaded) return this.countriesSubject.asObservable();
+  return this.http.get<Country[]>(this.olympicUrl).pipe(
+    tap((countries) => {
+      this.countriesSubject.next(countries.map(c => ({ ...c, participations: c.participations.map(p => ({ ...p })) })));
+      this.loaded = true;
+    }),
+    catchError(() => { this.countriesSubject.next(null); return of(null); })
+  );
 }
 ```
 
-- Les composants n’ont plus à gérer le cache ou la logique de chargement.
-- Le service expose également un observable d’erreur et de chargement pour l’UI.
-- Cette approche est adaptée à la consommation d’une API réelle.
+Le service **n'expose pas** d'observables `loading$` ou `error$` : les états de chargement sont gérés localement dans les composants via la valeur `null` du BehaviorSubject (non chargé) et les erreurs via `ErrorHandlerService`.
 
 ---
 
-## Checklist actionnable (Angular moderne)
-- [ ] Créer les dossiers `models`, `services`, `types`, `shared`, `components` dans `src/app/`
-- [ ] Ajouter les interfaces métier dans `models/`
-- [ ] Implémenter les services de données et d’erreur dans `services/`
-- [ ] Définir les types utilitaires dans `types/`
-- [ ] Mutualiser les composants/pipes/directives standalone dans `shared/`
-- [ ] Extraire les UI spécifiques standalone dans `components/`
-- [ ] Vérifier la cohérence des pages standalone dans `pages/`
-- [ ] Utiliser les signaux pour la gestion d’état locale
-- [ ] Appliquer la stratégie OnPush partout
-- [ ] Documenter et maintenir la structure dans `ARCHITECTURE.md`
+## Patterns de réactivité par composant
+
+### HomeComponent — Angular Signals
+`HomeComponent` utilise `toSignal` pour convertir `countries$` en signal, et `computed` pour les valeurs dérivées. Le graphique Chart.js est créé dans un `effect()` réagissant au signal `countries`.
+
+```typescript
+public countries = toSignal(this.olympicService.countries$, { initialValue: [] as Country[] });
+public numberOfCountries = computed(() => (this.countries() ?? []).length);
+public numberOfJOs = computed(() => (this.countries() ?? []).reduce((acc, c) => acc + c.participations.length, 0));
+```
+
+> Note : l'utilisation de `effect()` pour Chart.js sera remplacée par `afterNextRender` (Angular 16.2) lors de l'étape 10 du plan — pattern plus correct pour la manipulation DOM.
+
+### CountryComponent — RxJS + async pipe
+`CountryComponent` consomme `countries$` via l'async pipe dans le template et construit le graphique Chart.js dans `ngAfterViewInit` via une souscription manuelle nettoyée dans `ngOnDestroy`.
+
+---
+
+## Routage
+
+```typescript
+// app.routes.ts
+{ path: '', loadComponent: () => import('./pages/home/home.component.js').then(m => m.HomeComponent) },
+{ path: 'country/:countryName', loadComponent: () => import('./pages/country/country.component.js').then(m => m.CountryComponent) },
+{ path: 'not-found', loadComponent: () => import('./pages/not-found/not-found.component.js').then(m => m.NotFoundComponent) },
+{ path: '**', redirectTo: 'not-found' }
+```
+
+Toutes les routes utilisent `loadComponent` (lazy loading). Les URL inconnues et les paramètres de pays invalides redirigent vers `/not-found`.
+
+---
+
+## Contraintes de version à connaître
+
+| Fonctionnalité | Disponible en 16.2.12 |
+|---|---|
+| `*ngIf` / `*ngFor` | Oui |
+| `@if` / `@for` (nouvelle syntaxe) | Non — Angular 17+ uniquement |
+| `toSignal`, `computed`, `effect` | Oui (developer preview) |
+| `afterNextRender` / `afterRender` | Oui (Angular 16.2+) |
+| `takeUntilDestroyed` | Oui (Angular 16+) |
+| Signal inputs/outputs | Non — Angular 17.1+ |
 
 ---
 
 ## Notes
-- Cette architecture est évolutive : adaptez-la selon les besoins du projet.
-- Pour les anti-patterns et problèmes identifiés, voir `notes-architecture.md`.
-- Pour les guides et ressources, voir `guide-utilisation.md`, `nouvelles-pratiques-angular.md` et `ressources.md`.
+
+- Pour les anti-patterns identifiés et l'historique des décisions, voir `notes-architecture.md`.
+- Pour les nouvelles pratiques Angular appliquées, voir `nouvelles-pratiques-angular.md`.
