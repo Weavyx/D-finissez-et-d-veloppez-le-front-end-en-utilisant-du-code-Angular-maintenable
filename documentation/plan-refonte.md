@@ -1,11 +1,11 @@
-# Plan d’action de refonte – Angular moderne (synthèse enrichie)
+# Plan d'action de refonte – Angular moderne (synthèse enrichie)
 
 ---
 
-## 📚 Documentation générale du projet
+## Documentation générale du projet
 
 ### Contexte
-Ce projet Angular vise à illustrer une architecture front-end moderne, maintenable et accessible, en appliquant les meilleures pratiques du framework (Angular 16+), du typage TypeScript strict, et des standards d’accessibilité et de robustesse UI.
+Ce projet Angular vise à illustrer une architecture front-end moderne, maintenable et accessible, en appliquant les meilleures pratiques du framework (Angular 16.2.12), du typage TypeScript strict, et des standards d'accessibilité et de robustesse UI.
 
 ### Objectifs principaux
 - **Architecture claire** : séparation stricte des responsabilités (`components/`, `pages/`, `models/`, `services/`, `shared/`, `types/`).
@@ -13,209 +13,377 @@ Ce projet Angular vise à illustrer une architecture front-end moderne, maintena
 - **Composants standalone** : suppression des modules Angular, routage moderne (`loadComponent`).
 - **Accessibilité** : conformité ARIA, navigation clavier, contrastes, messages dynamiques.
 - **UI explicite** : gestion centralisée des états (chargement, vide, erreur, succès), composants dédiés (`LoadingIndicatorComponent`, `ErrorMessageComponent`).
-- **Réactivité robuste** : usage du pattern `async` pipe et/ou signals, nettoyage systématique des souscriptions.
+- **Réactivité robuste** : usage du pattern signals + `takeUntilDestroyed`, nettoyage systématique des souscriptions.
 - **Gestion des erreurs/logs** : centralisation via services dédiés, affichage UI cohérent.
 - **Responsive** : support desktop/tablette/mobile, breakpoints testés.
 - **Documentation** : chaque étape, choix technique, et structure sont documentés dans `/documentation/`.
 
+### Contraintes de version à respecter
+- **Angular 16.2.12** : les blocs `@if`/`@for` (Angular 17+) ne sont PAS disponibles. Utiliser `*ngIf`/`*ngFor`. La règle ESLint `@angular-eslint/template/prefer-control-flow` doit rester désactivée.
+- **`afterNextRender` / `afterRender`** : disponibles depuis Angular 16.2. À utiliser pour toute manipulation DOM (Chart.js). Ne pas utiliser `effect()` pour du DOM.
+- **`takeUntilDestroyed`** : disponible depuis Angular 16. Remplace le pattern `OnDestroy` + `unsubscribe()` manuel.
+- **`toSignal` avec `{ requireSync: true }`** : à utiliser sur les `BehaviorSubject` pour éviter le type `undefined` superflu.
+- **ESLint 9 + `angular-eslint` 21** : utilise le format flat config (`eslint.config.mjs`), pas `.eslintrc.json`.
+
 ### Bonnes pratiques à respecter
 - Ne jamais merger de documentation temporaire dans `main`.
-- Toujours partir de la branche `feature/architecture-refactor` pour toute nouvelle feature.
-- Fournir une PR claire, avec checklist et message de commit explicite à chaque étape.
-- Nettoyer le code mort, les imports, et les fichiers inutiles à chaque refactor.
-- Tester systématiquement la navigation, la gestion d’erreur, la responsive et l’accessibilité avant validation.
-- Utiliser les outils d’audit (Lighthouse, ESLint, etc.) pour garantir la conformité.
+- Toujours créer les branches depuis `feature/architecture-refactor`.
+- Chaque branche est mergée sur `feature/architecture-refactor` (jamais directement sur `main`).
+- Ne jamais faire `git add .` — toujours ajouter les fichiers explicitement.
+- Commits réguliers par tâche, message de commit explicite.
+- Tester `ng serve` et `ng lint` avant chaque push.
 
-### Structure du dossier
-- `src/app/components/` : composants réutilisables (listes, graphiques, etc.)
-- `src/app/pages/` : pages principales (home, country, not-found)
-- `src/app/models/` : interfaces et modèles de données
-- `src/app/services/` : services métier, gestion des données, logs, erreurs
-- `src/app/shared/` : pipes, directives, composants d’état
-- `src/app/types/` : types utilitaires, enums, filtres
-- `src/assets/mock/` : données de test (olympic.json)
-- `documentation/` : guides, plans, instructions, architecture
+### Fichiers à ne jamais commiter dans `main`
+- `documentation/plan-refonte.md`
+- `documentation/instructions.md`
+- `documentation/instructions-part-2.md`
+- `documentation/todo-git-pr.txt`
 
 ---
 
-> ⚠️ **Note important** :
-> Ce fichier (`plan-refonte.md`), ainsi que `instructions.md` et `instructions-part-2.md`, ne doivent jamais être commités dans la branche `main`. Ils servent uniquement d’aide temporaire au refactoring et seront supprimés à la fin de la refonte.
-
-> **Stratégie de branches** :
-> - Toutes les branches de refonte (`feature/…`) sont créées à partir de `origin/feature/architecture-refactor`.
-> - Chaque branche est mergée sur `feature/architecture-refactor` (jamais directement sur `main`).
-> - Une fois la refonte totalement validée, un merge final sera réalisé de `feature/architecture-refactor` vers `main`.
-
-Ce plan d’action intègre toutes les instructions, audits et spécifications fonctionnelles. Il détaille les branches à créer, les tâches concrètes restantes, les points de vigilance et les critères de validation pour garantir la conformité totale du projet.
+## Stratégie de branches
+- Toutes les branches (`feature/…`) sont créées depuis `feature/architecture-refactor`.
+- Chaque branche est mergée sur `feature/architecture-refactor` via PR.
+- Merge final : `feature/architecture-refactor` → `main` (avec suppression des docs temporaires).
 
 ---
 
-## Procédure à chaque étape
-- À la fin de chaque étape :
-  - Fournir les commandes de commit Git à exécuter (prêtes à copier-coller).
-  - Indiquer le titre et la description du Pull Request (PR) à ouvrir.
-  - Donner le message de commit principal de la branche correspondante.
-  - Attendre validation avant de passer à l’étape suivante.
+## Étapes 1 à 7 ✅ TERMINÉES
+
+| Étape | Branche | PR |
+|---|---|---|
+| 1 – Refonte architecture | `feature/refonte-architecture` | #10 |
+| 2 – Typage strict | `feature/typage-strict` | #11 |
+| 3 – Standalone components | `feature/standalone-components` | #12 |
+| 4 – Accessibilité UI | `feature/accessibilite-ui` | #13 |
+| 5 – Gestion erreurs/logs | `feature/gestion-erreur-logs` | #14, #15 |
+| 6 – Centralisation data/UI | `feature/centralisation-data-ui` | #16 |
+| 7 – Signals HomeComponent | `feature/signal-homecomponent` | #17 |
 
 ---
 
-## 1. `feature/refonte-architecture`
-- **Objectif** : Finaliser la structure des dossiers, centraliser les éléments partagés, supprimer le code mort.
-- **Actions** :
-  - Vérifier l’arborescence cible (`models/`, `services/`, `shared/`, `components/`, `pages/`, `types/`).
-  - Déplacer/renommer les fichiers si besoin, nettoyer les imports.
-  - S’assurer qu’aucun code mort, duplicata ou fichier orphelin ne subsiste.
-  - Mutualiser les composants/pipes/directives réutilisables dans `shared/`.
-  - Vérifier la cohérence avec `ARCHITECTURE.md` et `notes-architecture.md`.
-- **Dépendances** : Aucune.
-- **Validation** : Structure conforme, imports cohérents, pas de code mort.
+## 8. `feature/documentation-finale` — EN COURS (branche actuelle)
+
+### Objectif
+Documentation technique complète à jour + correctifs de base identifiés lors de la revue critique + configuration ESLint valide.
+
+### Actions
+- Corriger `.eslintrc.json` (fichier cassé avec des commentaires JS non valides et contenu incomplet) → le remplacer par `eslint.config.mjs` (format requis par ESLint 9 + angular-eslint 21).
+- Commiter les corrections de code déjà réalisées (take(1), chart.js bump, fix canvas Home, CountryComponent Chart.js, suppression des logs).
+- Créer `README.md` à la racine avec : prérequis, installation, lancement, structure, architecture.
+- Mettre à jour `documentation/ARCHITECTURE.md` pour refléter l'état actuel (suppression des références à `loading$`/`error$` dans le service, pattern Chart.js actuel).
+- Commiter `CLAUDE.md` et la mise à jour de ce plan.
+
+### Checklist
+- [ ] `eslint.config.mjs` créé et valide (`ng lint` passe sans erreur)
+- [ ] `.eslintrc.json` supprimé (remplacé par flat config)
+- [ ] Correctifs core committés
+- [ ] `README.md` créé
+- [ ] `ARCHITECTURE.md` à jour
+- [ ] `CLAUDE.md` commité
+
+### Commits à réaliser dans l'ordre
+
+```bash
+# 1. Config ESLint — remplacer le fichier cassé par la flat config valide
+git rm .eslintrc.json
+git add eslint.config.mjs
+git commit -m "chore(lint): migrate to ESLint 9 flat config (eslint.config.mjs)"
+```
+
+```bash
+# 2. Correctifs core
+git add src/app/app.component.ts src/app/services/olympic-data.service.ts package.json package-lock.json
+git commit -m "fix(core): add take(1) to data loading subscription and bump chart.js to 4.5.1"
+```
+
+```bash
+# 3. Correction bug graphique Home
+git add src/app/pages/home/home.component.ts src/app/pages/home/home.component.html
+git commit -m "fix(home): move canvas outside *ngIf to resolve ViewChild timing bug with effect()"
+```
+
+```bash
+# 4. CountryComponent — implémentation Chart.js + nettoyage logs
+git add src/app/pages/country/country.component.ts src/app/pages/country/country.component.html
+git commit -m "feat(country): implement Chart.js line chart and remove debug logs"
+```
+
+```bash
+# 5. README (à créer avant ce commit)
+git add README.md
+git commit -m "docs: add README with prerequisites, setup, architecture overview"
+```
+
+```bash
+# 6. Documentation technique + CLAUDE.md
+git add documentation/ARCHITECTURE.md CLAUDE.md
+git commit -m "docs: update ARCHITECTURE.md to match current implementation, add CLAUDE.md"
+```
+
+```bash
+# 7. Mise à jour du plan
+git add documentation/plan-refonte.md
+git commit -m "docs(plan): revise steps 8-11 based on Angular 16 critical review"
+```
+
+### Push
+```bash
+git push origin feature/documentation-finale
+```
+
+### PR
+- **Base** : `feature/architecture-refactor`
+- **Head** : `feature/documentation-finale`
+- **Titre** : `docs: finalisation documentation et correctifs de base`
+- **Description** :
+  - Migration ESLint 9 flat config (`eslint.config.mjs`)
+  - Correctifs identifiés lors de la revue critique : `take(1)`, canvas HomeComponent hors `*ngIf`, Chart.js CountryComponent, suppression logs debug
+  - Bump chart.js 4.2.1 → 4.5.1
+  - Ajout README.md, mise à jour ARCHITECTURE.md, ajout CLAUDE.md
+  - Plan de refonte mis à jour avec les étapes 9 et 10
 
 ---
 
-## 2. `feature/typage-strict`
-- **Objectif** : Typage strict TypeScript partout.
-- **Actions** :
-  - Activer toutes les options strictes dans `tsconfig.json`.
-  - Corriger tous les types faibles (`any`, `unknown`, etc.) dans le code applicatif.
-  - Vérifier et documenter les interfaces dans `models/`.
-  - S’assurer que tous les services, composants et pipes sont typés strictement.
-- **Dépendances** : `feature/refonte-architecture`.
-- **Validation** : Compilation sans warning/erreur de type, aucun `any` résiduel.
+## 9. `feature/bugfixes-critiques`
+
+### Objectif
+Corriger les bugs critiques identifiés lors de la revue : écran blanc sur pays introuvable, bug ViewChild identique à Home dans CountryComponent, `console.error` résiduel, `ErrorHandlerService` injecté mais jamais utilisé.
+
+### Prérequis
+PR de l'étape 8 mergée sur `feature/architecture-refactor`.
+
+### Création de la branche
+```bash
+git checkout feature/architecture-refactor
+git pull origin feature/architecture-refactor
+git checkout -b feature/bugfixes-critiques
+```
+
+### Actions
+1. **CountryComponent — pays introuvable** : si `getCountry()` retourne `undefined` après chargement des données, rediriger vers `/not-found` via `Router`. Actuellement l'écran est blanc sans message ni redirection.
+2. **CountryComponent — bug ViewChild** : le canvas `#countryChart` est dans un `*ngIf="getCountry(countries) as country"`. Si les données arrivent après `ngAfterViewInit` (navigation directe vers `/country/X`), `countryChartRef` est `undefined` dans la souscription et le filtre bloque — même classe de bug que Home. Déplacer le canvas hors du `*ngIf` et utiliser `[hidden]`.
+3. **CountryComponent — `console.error` résiduel** : ligne 114 dans `buildLineChart`, non supprimé lors du nettoyage précédent.
+4. **CountryComponent — `ErrorHandlerService` inutilisé** : injecté dans les dépendances mais jamais appelé. L'utiliser dans `buildLineChart` ou le supprimer.
+
+### Checklist
+- [ ] Navigation directe vers `/country/France` → graphique visible
+- [ ] Navigation vers `/country/PaysInexistant` → redirection vers `/not-found`
+- [ ] Aucun `console.error` dans le code applicatif
+- [ ] `ErrorHandlerService` utilisé ou supprimé des dépendances
+
+### Commits à réaliser dans l'ordre
+
+```bash
+# 1. Redirect quand pays introuvable
+git add src/app/pages/country/country.component.ts
+git commit -m "fix(country): redirect to /not-found when countryName does not match any data entry"
+```
+
+```bash
+# 2. Correction bug ViewChild canvas (même cause que Home)
+git add src/app/pages/country/country.component.html src/app/pages/country/country.component.ts
+git commit -m "fix(country): move canvas outside *ngIf to ensure ViewChild resolves before subscription fires"
+```
+
+```bash
+# 3. Suppression console.error + résolution ErrorHandlerService
+git add src/app/pages/country/country.component.ts
+git commit -m "fix(country): remove console.error and wire ErrorHandlerService in buildLineChart catch"
+```
+
+```bash
+# 4. Mise à jour du plan
+git add documentation/plan-refonte.md
+git commit -m "docs(plan): mark step 9 complete"
+```
+
+### Push
+```bash
+git push origin feature/bugfixes-critiques
+```
+
+### PR
+- **Base** : `feature/architecture-refactor`
+- **Head** : `feature/bugfixes-critiques`
+- **Titre** : `fix(country): critical bug fixes on CountryComponent`
+- **Description** :
+  - Redirection vers `/not-found` quand le paramètre de route ne correspond à aucun pays
+  - Correction du bug ViewChild/timing sur le canvas (même cause que HomeComponent)
+  - Suppression du `console.error` résiduel
+  - `ErrorHandlerService` correctement utilisé dans le catch de `buildLineChart`
 
 ---
 
-## 3. `feature/standalone-components`
-- **Objectif** : Tous les composants/pages standalone, suppression des modules Angular.
-- **Actions** :
-  - Vérifier que chaque composant/page/pipe/directive est standalone (`standalone: true`).
-  - Nettoyer les éventuels modules restants.
-  - Adapter le routage pour n’utiliser que `loadComponent`.
-  - Vérifier la cohérence des imports et la documentation.
-- **Dépendances** : `feature/refonte-architecture`.
-- **Validation** : Plus de modules, tout standalone, routage moderne.
+## 10. `feature/angular16-bonnes-pratiques`
+
+### Objectif
+Appliquer les fonctionnalités Angular 16.2 qui n'étaient pas dans le plan initial : `afterNextRender` pour Chart.js, `takeUntilDestroyed` pour les souscriptions, `OnPush` cohérent sur tous les composants, `requireSync` sur les BehaviorSubject, calculs extraits du template vers des propriétés.
+
+### Prérequis
+PR de l'étape 9 mergée sur `feature/architecture-refactor`.
+
+### Création de la branche
+```bash
+git checkout feature/architecture-refactor
+git pull origin feature/architecture-refactor
+git checkout -b feature/angular16-bonnes-pratiques
+```
+
+### Actions
+
+**1. HomeComponent — `afterNextRender` à la place de `effect()` pour Chart.js**
+
+`effect()` réagit aux changements de signaux, pas aux mises à jour du DOM. Pour toute création de chart Chart.js, utiliser `afterNextRender` (disponible depuis Angular 16.2) qui s'exécute après chaque cycle de rendu, garantissant que le canvas est dans le DOM.
+
+```typescript
+import { afterNextRender } from '@angular/core';
+
+constructor() {
+  afterNextRender(() => {
+    // création du chart ici, canvas toujours disponible
+  });
+}
+```
+
+**2. `ChangeDetectionStrategy.OnPush` sur HomeComponent**
+
+`CountryComponent` l'applique déjà. `HomeComponent` ne l'a pas. Avec les signals, `OnPush` fonctionne nativement — Angular sait exactement quand re-rendre.
+
+**3. CountryComponent — `takeUntilDestroyed` à la place de `OnDestroy` + `unsubscribe()`**
+
+```typescript
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DestroyRef, inject } from '@angular/core';
+
+private destroyRef = inject(DestroyRef);
+
+ngAfterViewInit() {
+  this.countries$.pipe(
+    takeUntilDestroyed(this.destroyRef),
+    filter(...)
+  ).subscribe(...);
+}
+// Plus besoin de chartSub?: Subscription ni de ngOnDestroy pour la souscription
+```
+
+**4. `toSignal` avec `{ requireSync: true }` pour les BehaviorSubject**
+
+`BehaviorSubject` émet toujours synchronement. Avec `{ requireSync: true }`, le type du signal est `Country[] | null` (pas `Country[] | null | undefined`), ce qui évite les `?? []` défensifs partout.
+
+```typescript
+// Avant
+public countries = toSignal(this.olympicService.countries$, { initialValue: [] as Country[] });
+// Après
+public countries = toSignal(this.olympicService.countries$, { requireSync: true });
+```
+
+**5. CountryComponent — méthodes template → propriétés calculées**
+
+Appeler `getCountry()`, `getTotalMedals()` etc. depuis le template est un anti-pattern avec `OnPush` (recalcul à chaque CD). Les extraire en propriétés résolues une fois lors de la souscription.
+
+### Checklist
+- [ ] `afterNextRender` utilisé dans HomeComponent pour Chart.js
+- [ ] `ChangeDetectionStrategy.OnPush` sur HomeComponent
+- [ ] `takeUntilDestroyed` dans CountryComponent, `ngOnDestroy` supprimé (ou réduit au seul `this.chart?.destroy()`)
+- [ ] `requireSync: true` sur les `toSignal` de BehaviorSubject
+- [ ] Méthodes utilitaires extraites du template dans CountryComponent
+- [ ] `ng lint` passe sans erreur
+- [ ] `ng serve` : les deux graphiques s'affichent correctement
+- [ ] `ARCHITECTURE.md` mis à jour pour documenter ces patterns
+
+### Commits à réaliser dans l'ordre
+
+```bash
+# 1. HomeComponent : afterNextRender + OnPush
+git add src/app/pages/home/home.component.ts
+git commit -m "refactor(home): replace effect() with afterNextRender for Chart.js, apply OnPush"
+```
+
+```bash
+# 2. CountryComponent : takeUntilDestroyed
+git add src/app/pages/country/country.component.ts
+git commit -m "refactor(country): replace OnDestroy+Subscription with takeUntilDestroyed"
+```
+
+```bash
+# 3. requireSync + computed stats extraits du template
+git add src/app/pages/home/home.component.ts src/app/pages/country/country.component.ts
+git commit -m "refactor(signals): use requireSync for BehaviorSubject toSignal, extract template methods to computed properties"
+```
+
+```bash
+# 4. Documentation
+git add documentation/ARCHITECTURE.md documentation/plan-refonte.md
+git commit -m "docs: document Angular 16.2 patterns (afterNextRender, takeUntilDestroyed, requireSync)"
+```
+
+### Push
+```bash
+git push origin feature/angular16-bonnes-pratiques
+```
+
+### PR
+- **Base** : `feature/architecture-refactor`
+- **Head** : `feature/angular16-bonnes-pratiques`
+- **Titre** : `refactor: apply Angular 16.2 best practices`
+- **Description** :
+  - `afterNextRender` pour la création des charts Chart.js (remplacement de `effect()`)
+  - `ChangeDetectionStrategy.OnPush` appliqué sur HomeComponent (cohérence avec CountryComponent)
+  - `takeUntilDestroyed(DestroyRef)` remplace le pattern `OnDestroy` + `unsubscribe()` manuel dans CountryComponent
+  - `toSignal` avec `{ requireSync: true }` sur les BehaviorSubject
+  - Méthodes utilitaires extraites du template vers des propriétés calculées
+  - `ARCHITECTURE.md` mis à jour
 
 ---
 
-## 4. `feature/accessibilite-ui`
-- **Objectif** : Accessibilité (ARIA, navigation clavier), responsive, UI explicite.
-- **Actions** :
-  - Vérifier/corriger tous les labels, attributs ARIA, contrastes, navigation clavier.
-  - S’assurer que les composants d’état (`LoadingIndicatorComponent`, `ErrorMessageComponent`) sont utilisés partout où nécessaire.
-  - Tester la responsive sur desktop, tablette, mobile (breakpoints, flex/grid).
-  - Rendre explicites tous les états UI (chargement, vide, erreur, succès).
-  - Vérifier la conformité avec les recommandations d’accessibilité (audit Lighthouse > 90).
-- **Dépendances** : `feature/standalone-components`.
-- **Validation** : Audit Lighthouse > 90, navigation clavier, responsive validé.
+## 11. Merge final `feature/architecture-refactor` → `main`
+
+### Objectif
+Supprimer les fichiers de documentation temporaires puis merger la refonte complète dans `main`.
+
+### Prérequis
+PR de l'étape 10 mergée sur `feature/architecture-refactor`.
+
+### Actions
+
+```bash
+# Se positionner sur feature/architecture-refactor à jour
+git checkout feature/architecture-refactor
+git pull origin feature/architecture-refactor
+
+# Supprimer les docs temporaires (instructions et plan-refonte suivis par git)
+git rm documentation/plan-refonte.md
+git commit -m "chore: remove temporary planning docs before merge to main"
+
+git push origin feature/architecture-refactor
+```
+
+> `instructions.md`, `instructions-part-2.md` et `todo-git-pr.txt` sont non-trackés → ils ne sont pas dans l'historique, rien à faire.
+
+### PR
+- **Base** : `main`
+- **Head** : `feature/architecture-refactor`
+- **Titre** : `feat: Angular 16.2 refactored Olympic Games app`
+- **Description** :
+  - Architecture standalone complète (sans NgModule)
+  - Typage TypeScript strict, zéro `any`
+  - Signals Angular 16 (HomeComponent), `takeUntilDestroyed`, `afterNextRender`
+  - `OlympicDataService` avec `BehaviorSubject`, chargement unique depuis `AppComponent`
+  - Gestion centralisée des erreurs (`ErrorHandlerService` + `LoggerService`)
+  - Routing moderne (`loadComponent`), redirection `/not-found` sur URL inconnue ou pays absent
+  - Chart.js : pie chart interactif (Home), line chart (Country)
+  - Accessibilité ARIA, responsive, `ChangeDetectionStrategy.OnPush` partout
+  - ESLint 9 flat config, `ng lint` propre
+  - README et ARCHITECTURE.md complets
 
 ---
 
-## 5. `feature/gestion-erreur-logs` ✅ TERMINÉ
-- **Objectif** : Gestion centralisée des erreurs et logs.
-- **Actions réalisées** :
-   - Utilisation d’`error-handler.service.ts`, `logger.service.ts` partout.
-   - Toutes les erreurs sont capturées et affichées via `error-message.component.ts`.
-   - Suppression de tous les `console.log`.
-   - Tests d’affichage UI et robustesse validés.
-- **Dépendances** : `feature/refonte-architecture`, `feature/typage-strict`.
-- **Validation** : Erreurs affichées proprement, logs cohérents, pas d’erreur silencieuse.
+## Points de vigilance globaux
 
----
-
-## 6. Finalisation technique de la refonte : robustesse, accessibilité, réactivité
-
-### Objectifs techniques et organisationnels
-- **Chargement unique des données** :
-  - Centraliser le chargement du JSON dans `AppComponent` avec `take(1)` pour éviter tout double chargement.
-  - Exposer les données via un service (ex : `OlympicDataService`) avec un `BehaviorSubject` ou équivalent.
-- **Gestion des souscriptions** :
-  - Identifier et corriger toutes les souscriptions non nettoyées (unsubscribe ou `takeUntil`, ou suppression via async pipe/signals).
-  - Privilégier l’usage de l’`async` pipe partout où possible.
-- **Réactivité moderne** :
-  - Utiliser les signals dans `HomeComponent` si pertinent, sinon rester sur l’approche observable classique dans les autres composants.
-  - S’assurer que tous les états UI (chargement, vide, erreur, succès) sont explicites et accessibles (ARIA, rôles, messages dynamiques).
-- **Accessibilité et responsive** :
-  - Vérifier/corriger tous les labels, attributs ARIA, contrastes, navigation clavier.
-  - Tester la responsive sur desktop, tablette, mobile (breakpoints, flex/grid).
-  - Audit Lighthouse > 90.
-- **Nettoyage** :
-  - Supprimer tout code mort, imports inutiles, fichiers obsolètes.
-
-### Checklist exhaustive pour la finalisation technique
-- [x] Refactorer le chargement des données dans `AppComponent` (take(1), centralisation).
-- [x] Adapter tous les composants pour consommer les données via le service centralisé.
-- [x] Remplacer toutes les souscriptions manuelles par l’`async` pipe ou signals, ou s’assurer de leur nettoyage.
-- [x] Rendre explicites tous les états UI (chargement, vide, erreur, succès) dans chaque page/composant.
-- [x] Vérifier/corriger l’accessibilité sur tous les composants/pages.
-- [x] Tester la responsive sur tous les breakpoints.
-- [x] Nettoyer le code mort, les imports, les fichiers inutiles.
-- [x] Vérifier la conformité à toutes les instructions, audits et spécifications fonctionnelles.
-- [x] Préparer la PR de finalisation technique avec un message de commit clair et une checklist de validation.
-
----
-
-## 7. `feature/signal-homecomponent`
-- **Objectif** : Migrer HomeComponent pour consommer les données olympiques via Angular signals (et non plus via observable classique).
-- **Actions** :
-  - Créer la branche `feature/signal-homecomponent` depuis `feature/architecture-refactor`.
-  - Refactorer HomeComponent pour utiliser les Angular signals pour la donnée olympique (tout en gardant l’async pipe dans les autres composants/pages).
-  - Mettre à jour ou ajouter des tests unitaires pour HomeComponent si besoin.
-  - Mettre à jour la documentation technique (README.md, etc.) pour expliquer ce choix.
-  - Mettre à jour ce plan (plan-refonte.md) pour refléter la séquence réelle.
-  - Préparer une PR dédiée avec checklist de validation.
-- **Dépendances** : Finalisation technique (étape 6).
-- **Validation** : HomeComponent utilise les signals, tout fonctionne, documentation à jour.
-
-### Checklist PR signal-homecomponent
-- [x] Branche dédiée créée et à jour avec la branche principale.
-- [x] HomeComponent utilise Angular signals pour la donnée olympique.
-- [x] Les autres composants/pages utilisent toujours l’async pipe.
-- [x] Documentation technique mise à jour.
-- [x] plan-refonte.md mis à jour avec la nouvelle séquence.
-- [x] Revue de code effectuée et feedback intégré.
-
----
-
-### Points de vigilance
-- Ne jamais recharger le JSON plus d’une fois (vérifier navigation rapide).
-- Ne jamais laisser de souscription non nettoyée.
-- Toujours privilégier l’`async` pipe/signals pour la réactivité.
-- S’assurer que chaque état UI est visible, accessible et testé.
-- Ne jamais merger de documentation temporaire dans `main`.
-
-### SMART objectifs (rappel)
-- Mettre en place un chargement unique des données depuis AppComponent avec take(1).
-- Identifier et corriger les souscriptions non correctement gérées dans l’application.
-- Appliquer les ajustements restants sur async pipe, signals et finaliser le projet 2.
-
-----
-
-## 8. `feature/documentation-finale`
-- **Objectif** : Documentation technique et utilisateur à jour.
-- **Actions** :
-  - Mettre à jour `README.md`, `/documentation/`, `ARCHITECTURE.md`.
-  - Documenter la structure, les choix techniques, l’utilisation, la contribution.
-  - Ajouter des exemples d’utilisation, captures d’écran, instructions de lancement.
-  - Vérifier la cohérence entre code, structure et documentation.
-- **Dépendances** : Toutes les étapes précédentes.
-- **Validation** : Documentation complète, claire, structurée.
-
-----
-
-## Checklist actionnable
-- [x] Créer chaque branche au moment de démarrer l’étape correspondante (depuis `feature/architecture-refactor`).
-- [x] Réaliser les PR dans l’ordre, à merge sur `feature/architecture-refactor`.
-- [x] À la fin de chaque étape, fournir :
-    - Les commandes de commit Git à exécuter (prêtes à copier-coller).
-    - Le titre et la description de la PR
-    - Le message de commit principal de la branche
-- [x] Valider chaque étape avant de passer à la suivante.
-- [x] Migrer HomeComponent vers Angular signals (`feature/signal-homecomponent`).
-- [x] Mettre à jour la documentation.
-- [x] Vérifier la conformité à toutes les instructions, audits et spécifications fonctionnelles.
-- [x] Nettoyer le code mort, les imports, les fichiers inutiles.
-- [x] Tester la navigation, la gestion d’erreur, la responsive, l’accessibilité.
-- [x] Une fois la refonte validée, merger `feature/architecture-refactor` vers `main`.
-
-----
-
-Ce plan garantit une organisation claire, une gestion des dépendances et une intégration progressive de la nouvelle architecture Angular moderne, en conformité stricte avec toutes les instructions, audits et bonnes pratiques.
+- Ne jamais utiliser `effect()` pour de la manipulation DOM → `afterNextRender`.
+- Ne jamais utiliser `*ngIf`/`@if` interchangeablement : `@if` est Angular 17+, ce projet est en 16.2.12.
+- `BehaviorSubject` → toujours `toSignal` avec `{ requireSync: true }`.
+- Canvas Chart.js → toujours hors de tout `*ngIf` pour que `@ViewChild` soit résolu.
+- `ChangeDetectionStrategy.OnPush` → obligatoire sur tous les composants.
+- Souscriptions → toujours `takeUntilDestroyed`, jamais de `ngOnDestroy` + `unsubscribe()` manuel.

@@ -1,29 +1,21 @@
-<!-- Migration Angular 16.2.12 : utilisation des blocs de contrôle @if -->
 <h2>Olympic games app</h2>
 <hr />
 
-<app-loading-indicator *ngIf="loading()" aria-live="polite" role="status"></app-loading-indicator>
-<app-error-message *ngIf="error() as errorMsg" [message]="errorMsg" aria-live="assertive" role="alert"></app-error-message>
-<ng-container *ngIf="!loading() && !error()">
-  <ng-container *ngIf="countries() as countries">
-    <div class="center">
-      <div>{{ titlePage }}</div>
+<ng-container *ngIf="countries() as countries">
+  <div class="center">
+    <div>{{ titlePage }}</div>
+  </div>
+  <div class="split">
+    <div>
+      <p>Number of countries</p>
+      <p>{{ numberOfCountries() }}</p>
     </div>
-    <div class="split">
-      <div>
-        <p>Number of countries</p>
-        <p>{{ numberOfCountries() }}</p>
-      </div>
-      <div>
-        <p>Number of JOs</p>
-        <p>{{ numberOfJOs() }}</p>
-      </div>
+    <div>
+      <p>Number of JOs</p>
+      <p>{{ numberOfJOs() }}</p>
     </div>
-    <div *ngIf="countries.length > 0; else noData">
-      <canvas #dashboardPieChart style="min-width:400px;min-height:300px;display:block;background:#fff;border:1px solid #ccc" aria-label="Pie chart showing medals per country" role="img"></canvas>
-    </div>
-    <ng-template #noData>
-      <div class="center" role="status" aria-live="polite">No country data available.</div>
-    </ng-template>
-  </ng-container>
+  </div>
 </ng-container>
+
+<canvas #dashboardPieChart [hidden]="!numberOfCountries()" width="400" height="300" style="min-width:400px;min-height:300px;display:block;background:#fff;border:1px solid #ccc" aria-label="Pie chart showing medals per country" role="img"></canvas>
+<div *ngIf="!numberOfCountries()" class="center" role="status" aria-live="polite">No country data available.</div>

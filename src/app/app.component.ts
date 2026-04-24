@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { take } from 'rxjs/operators';
 import { RouterOutlet } from '@angular/router';
 import { OlympicDataService } from './services/olympic-data.service';
 
@@ -13,6 +14,6 @@ export class AppComponent implements OnInit {
   private olympicService = inject(OlympicDataService);
 
   ngOnInit() {
-    this.olympicService.loadOlympicCountries();
+    this.olympicService.loadOlympicCountries().pipe(take(1)).subscribe();
   }
 }
