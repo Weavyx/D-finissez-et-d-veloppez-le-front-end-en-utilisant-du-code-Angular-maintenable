@@ -2,19 +2,26 @@ import {
   Component,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  DestroyRef,
   inject,
   ViewChild,
   ElementRef,
   AfterViewInit,
-  OnDestroy
 } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Observable, map, filter, shareReplay } from 'rxjs';
 import { Country } from '../../models/country.model';
 import { OlympicDataService } from '../../services/olympic-data.service';
 import { ErrorHandlerService } from '../../services/error-handler.service';
 import { CommonModule } from '@angular/common';
 import Chart from 'chart.js/auto';
-import { Subscription, filter } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+type ChartState =
+  | { status: 'loading' }
+  | { status: 'not-found' }
+  | { status: 'empty' }
+  | { status: 'ready'; labels: string[]; data: number[] };
 
 @Component({
   selector: 'app-country',
@@ -24,78 +31,85 @@ import { Subscription, filter } from 'rxjs';
   imports: [CommonModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CountryComponent implements AfterViewInit, OnDestroy {
+export class CountryComponent implements AfterViewInit {
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
   private olympicService = inject(OlympicDataService);
   private errorHandlerService = inject(ErrorHandlerService);
-  private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
-  public countries$ = this.olympicService.countries$;
-  public countryName: string | null = this.route.snapshot.paramMap.get('countryName');
-  public chartVisible = false;
-  public chartNoData = false;
+  private countryName = this.route.snapshot.paramMap.get('countryName');
 
-  @ViewChild('countryChart', { static: true }) countryChartRef!: ElementRef<HTMLCanvasElement>;
+  public country$ = this.olympicService.countries$.pipe(
+    filter((countries): countries is Country[] => countries !== null),
+    map(countries => countries.find(c => c.country === this.countryName)),
+    shareReplay(1)
+  );
+
+  public totalMedals$ = this.country$.pipe(
+    map(country => country ? country.participations.reduce((acc, p) => acc + p.medalsCount, 0) : 0)
+  );
+
+  public totalAthletes$ = this.country$.pipe(
+    map(country => country ? country.participations.reduce((acc, p) => acc + p.athleteCount, 0) : 0)
+  );
+
+  public chartState$: Observable<ChartState> = this.olympicService.countries$.pipe(
+    map(countries => {
+      if (countries === null) return { status: 'loading' } as ChartState;
+      const country = countries.find(c => c.country === this.countryName);
+      if (!country) return { status: 'not-found' } as ChartState;
+      if (country.participations.length === 0) return { status: 'empty' } as ChartState;
+      return {
+        status: 'ready',
+        labels: country.participations.map(p => p.year.toString()),
+        data: country.participations.map(p => p.medalsCount),
+      } as ChartState;
+    }),
+    shareReplay(1)
+  );
+
+  @ViewChild('countryChart', { static: true }) countryChartRef?: ElementRef<HTMLCanvasElement>;
   private chart: Chart<'line', number[], string> | null = null;
-  private chartSub?: Subscription;
 
-  getCountry(data: Country[] | null): Country | undefined {
-    return data?.find((c: Country) => c.country === this.countryName);
-  }
-  getTotalEntries(country: Country): number {
-    return country.participations.length;
-  }
-  getTotalMedals(country: Country): number {
-    return country.participations.reduce((acc, p) => acc + p.medalsCount, 0);
-  }
-  getTotalAthletes(country: Country): number {
-    return country.participations.reduce((acc, p) => acc + p.athleteCount, 0);
+  constructor() {
+    this.destroyRef.onDestroy(() => this.chart?.destroy());
   }
 
-  ngAfterViewInit() {
-    this.chartSub = this.countries$
-      .pipe(filter((countries): countries is Country[] => countries !== null))
-      .subscribe((countries) => {
-        const country = this.getCountry(countries);
-        if (!country) {
-          this.router.navigate(['/not-found']);
-          return;
-        }
-        const labels = country.participations.map(p => p.year.toString());
-        const data = country.participations.map(p => p.medalsCount);
-        if (labels.length > 0) {
-          this.buildLineChart(labels, data);
-          this.chartVisible = true;
+  ngAfterViewInit(): void {
+    this.chartState$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(state => {
+        if (state.status === 'ready') {
+          this.cdr.detectChanges();
+          this.buildLineChart(state.labels, state.data);
         } else {
-          this.chartNoData = true;
+          this.chart?.destroy();
+          this.chart = null;
         }
-        this.cdr.markForCheck();
       });
   }
 
-  ngOnDestroy() {
+  private buildLineChart(labels: string[], data: number[]): void {
     this.chart?.destroy();
-    this.chartSub?.unsubscribe();
-  }
 
-  private buildLineChart(labels: string[], data: number[]) {
-    this.chart?.destroy();
+    if (!this.countryChartRef) {
+      return;
+    }
+
     try {
       this.chart = new Chart(this.countryChartRef.nativeElement, {
         type: 'line',
         data: {
           labels,
-          datasets: [
-            {
-              label: 'Medals per year',
-              data,
-              borderColor: '#0b868f',
-              backgroundColor: 'rgba(11,134,143,0.2)',
-              fill: true,
-              tension: 0.3,
-            },
-          ],
+          datasets: [{
+            label: 'Medals per year',
+            data,
+            borderColor: '#0b868f',
+            backgroundColor: 'rgba(11,134,143,0.2)',
+            fill: true,
+            tension: 0.3,
+          }],
         },
         options: {
           responsive: true,
