@@ -26,12 +26,7 @@ export class OlympicDataService {
     }
     return this.http.get<Country[]>(this.olympicUrl).pipe(
       tap((countries) => {
-        // Clonage profond pour garantir l'immutabilité
-        const cloned = countries.map(country => ({
-          ...country,
-          participations: country.participations ? country.participations.map(p => ({ ...p })) : []
-        }));
-        this.countriesSubject.next(cloned);
+        this.countriesSubject.next(countries);
         this.loaded = true;
       }),
       catchError(() => {

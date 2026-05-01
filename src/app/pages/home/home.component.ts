@@ -1,9 +1,13 @@
 import {
   Component,
+  ChangeDetectionStrategy,
+  DestroyRef,
+  Injector,
   inject,
-  OnDestroy,
   ViewChild,
   ElementRef,
+  computed,
+  afterNextRender,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -11,8 +15,7 @@ import { RouterModule } from '@angular/router';
 import Chart from 'chart.js/auto';
 import { OlympicDataService } from '../../services/olympic-data.service';
 import { ErrorHandlerService } from '../../services/error-handler.service';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { computed, effect } from '@angular/core';
+import { toSignal, toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Country } from '../../models/country.model';
 
 @Component({
@@ -21,81 +24,64 @@ import { Country } from '../../models/country.model';
   styleUrls: ['./home.component.scss'],
   standalone: true,
   imports: [CommonModule, RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements OnDestroy {
+export class HomeComponent {
   @ViewChild('dashboardPieChart', { static: true }) pieChartRef!: ElementRef<HTMLCanvasElement>;
   private router = inject(Router);
   private olympicService = inject(OlympicDataService);
   private errorHandlerService = inject(ErrorHandlerService);
+  private destroyRef = inject(DestroyRef);
+  private injector = inject(Injector);
 
-  public countries = toSignal(this.olympicService.countries$, { initialValue: [] as Country[] });
-  titlePage = 'Medals per Country';
-  public numberOfCountries = computed(() => (this.countries() ?? []).length);
-  public numberOfJOs = computed(() => (this.countries() ?? []).reduce((acc: number, c: Country) => acc + (c.participations?.length ?? 0), 0));
+  public countries = toSignal(this.olympicService.countries$, { requireSync: true });
+  public titlePage = 'Medals per Country';
+  public numberOfCountries = computed(() => this.countries()?.length ?? 0);
+  public numberOfJOs = computed(() => this.countries()?.reduce((acc, c) => acc + c.participations.length, 0) ?? 0);
   private pieChart?: Chart<'pie', number[], string>;
 
   constructor() {
-    effect(() => {
-      const countries = this.countries() ?? [];
-      const canvas = this.pieChartRef?.nativeElement;
-      if (countries.length > 0 && canvas) {
-        const countryNames = countries.map((c: Country) => c.country);
-        const sumOfAllMedalsYears = countries.map((c: Country) =>
-          c.participations.reduce((acc: number, p: { medalsCount: number }) => acc + p.medalsCount, 0)
-        );
-        if (this.pieChart) {
-          this.pieChart.destroy();
-        }
-        this.pieChart = new Chart(canvas, {
-          type: 'pie',
-          data: {
-            labels: countryNames,
-            datasets: [
-              {
-                label: 'Medals',
-                data: sumOfAllMedalsYears,
-                backgroundColor: [
-                  '#0b868f',
-                  '#adc3de',
-                  '#7a3c53',
-                  '#8f6263',
-                  'orange',
-                  '#94819d',
-                ],
-                hoverOffset: 4,
-              },
-            ],
-          },
-          options: {
-            aspectRatio: 2.5,
-            onClick: (e) => {
-              if (e.native) {
-                const points = this.pieChart!.getElementsAtEventForMode(
-                  e.native,
-                  'point',
-                  { intersect: true },
-                  true,
-                );
-                if (points.length) {
-                  const firstPoint = points[0];
-                  const countryName = this.pieChart!.data.labels
-                    ? this.pieChart!.data.labels[firstPoint.index]
-                    : '';
-                  this.router.navigate(['country', countryName]).catch((err) => {
-                    this.errorHandlerService.handleError(err);
-                  });
-                }
-              }
-            },
-          },
+    this.destroyRef.onDestroy(() => this.pieChart?.destroy());
+
+    afterNextRender(() => {
+      toObservable(this.countries, { injector: this.injector })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(countries => {
+          if (countries && countries.length > 0) {
+            this.buildPieChart(countries);
+          }
         });
-      }
     });
   }
 
-  ngOnDestroy() {
-    if (this.pieChart) {
-      this.pieChart.destroy();
-    }
+  private buildPieChart(countries: Country[]) {
+    this.pieChart?.destroy();
+    const labels = countries.map(c => c.country);
+    const data = countries.map(c => c.participations.reduce((acc, p) => acc + p.medalsCount, 0));
+    this.pieChart = new Chart(this.pieChartRef.nativeElement, {
+      type: 'pie',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Medals',
+          data,
+          backgroundColor: ['#0b868f', '#adc3de', '#7a3c53', '#8f6263', 'orange', '#94819d'],
+          hoverOffset: 4,
+        }],
+      },
+      options: {
+        aspectRatio: 2.5,
+        onClick: (e) => {
+          if (!e.native) return;
+          const points = this.pieChart!.getElementsAtEventForMode(e.native, 'point', { intersect: true }, true);
+          if (points.length) {
+            const countryName = this.pieChart!.data.labels?.[points[0].index] ?? '';
+            this.router.navigate(['country', countryName]).catch(err => {
+              this.errorHandlerService.handleError(err);
+            });
+          }
+        },
+      },
+    });
   }
 }

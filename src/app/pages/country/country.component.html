@@ -1,31 +1,43 @@
-<ng-container *ngIf="countries$ | async as countries">
-  <ng-container *ngIf="getCountry(countries) as country">
-    <div class="center">
-      <div>{{ country.country }}</div>
-    </div>
-    <div class="split">
-      <div>
-        <p>Number of entries</p>
-        <p>{{ getTotalEntries(country) }}</p>
-      </div>
-      <div>
-        <p>Total Number of medals</p>
-        <p>{{ getTotalMedals(country) }}</p>
-      </div>
-      <div>
-        <p>Total Number of athletes</p>
-        <p>{{ getTotalAthletes(country) }}</p>
-      </div>
-    </div>
-  </ng-container>
+<ng-container *ngIf="country$ | async as country; else notFound">
   <div class="center">
-    <a routerLink="" aria-label="Back to home">Go back</a>
+    <div>{{ country.country }}</div>
+  </div>
+  <div class="split">
+    <div>
+      <p>Number of entries</p>
+      <p>{{ country.participations.length }}</p>
+    </div>
+    <div>
+      <p>Total Number of medals</p>
+      <p>{{ totalMedals$ | async }}</p>
+    </div>
+    <div>
+      <p>Total Number of athletes</p>
+      <p>{{ totalAthletes$ | async }}</p>
+    </div>
   </div>
 </ng-container>
-<div [hidden]="!chartVisible" class="chart-container wrapper-container">
+<ng-template #notFound>
+  <div class="center" role="status" aria-live="polite">Country not found.</div>
+</ng-template>
+
+<div class="chart-container wrapper-container"
+     [hidden]="(chartState$ | async)?.status !== 'ready'">
   <div class="container">
     <canvas #countryChart id="countryChart" aria-label="Line chart showing medals per year for this country" role="img"></canvas>
     <h2>Date</h2>
   </div>
 </div>
-<div *ngIf="chartNoData" class="center" role="status" aria-live="polite">No participation data available for this country.</div>
+
+<ng-container *ngIf="chartState$ | async as chartState">
+  <div *ngIf="chartState.status === 'loading'" class="center" role="status" aria-live="polite">
+    Loading chart...
+  </div>
+  <div *ngIf="chartState.status === 'empty'" class="center" role="status" aria-live="polite">
+    No participation data available for this country.
+  </div>
+</ng-container>
+
+<div class="center">
+  <a routerLink="" aria-label="Back to home">Go back</a>
+</div>
