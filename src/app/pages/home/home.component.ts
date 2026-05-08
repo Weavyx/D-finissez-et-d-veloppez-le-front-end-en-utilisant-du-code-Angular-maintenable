@@ -2,20 +2,18 @@ import {
   Component,
   ChangeDetectionStrategy,
   DestroyRef,
-  Injector,
   inject,
   ViewChild,
   ElementRef,
   computed,
   afterNextRender,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import Chart from 'chart.js/auto';
 import { OlympicDataService } from '../../services/olympic-data.service';
 import { ErrorHandlerService } from '../../services/error-handler.service';
-import { toSignal, toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Country } from '../../models/country.model';
 
 @Component({
@@ -32,7 +30,6 @@ export class HomeComponent {
   private olympicService = inject(OlympicDataService);
   private errorHandlerService = inject(ErrorHandlerService);
   private destroyRef = inject(DestroyRef);
-  private injector = inject(Injector);
 
   public countries = toSignal(this.olympicService.countries$, { requireSync: true });
   public titlePage = 'Medals per Country';
@@ -44,7 +41,7 @@ export class HomeComponent {
     this.destroyRef.onDestroy(() => this.pieChart?.destroy());
 
     afterNextRender(() => {
-      toObservable(this.countries, { injector: this.injector })
+      this.olympicService.countries$
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(countries => {
           if (countries && countries.length > 0) {
@@ -52,6 +49,17 @@ export class HomeComponent {
           }
         });
     });
+  }
+
+  public onChartClick(event: MouseEvent): void {
+    if (!this.pieChart) return;
+    const points = this.pieChart.getElementsAtEventForMode(event, 'point', { intersect: true }, true);
+    if (points.length) {
+      const countryName = this.pieChart.data.labels?.[points[0].index] ?? '';
+      this.router.navigate(['country', countryName]).catch(err => {
+        this.errorHandlerService.handleError(err);
+      });
+    }
   }
 
   private buildPieChart(countries: Country[]) {
@@ -70,17 +78,8 @@ export class HomeComponent {
         }],
       },
       options: {
-        aspectRatio: 2.5,
-        onClick: (e) => {
-          if (!e.native) return;
-          const points = this.pieChart!.getElementsAtEventForMode(e.native, 'point', { intersect: true }, true);
-          if (points.length) {
-            const countryName = this.pieChart!.data.labels?.[points[0].index] ?? '';
-            this.router.navigate(['country', countryName]).catch(err => {
-              this.errorHandlerService.handleError(err);
-            });
-          }
-        },
+        responsive: true,
+        maintainAspectRatio: false,
       },
     });
   }

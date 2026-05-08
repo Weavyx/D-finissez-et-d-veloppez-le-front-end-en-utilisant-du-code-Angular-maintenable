@@ -17,5 +17,7 @@
   </div>
 </ng-container>
 
-<canvas #dashboardPieChart [hidden]="!numberOfCountries()" width="400" height="300" style="min-width:400px;min-height:300px;display:block;background:#fff;border:1px solid #ccc" aria-label="Pie chart showing medals per country" role="img"></canvas>
+<div class="chart-wrapper">
+  <canvas #dashboardPieChart (click)="onChartClick($event)" [hidden]="!numberOfCountries()" aria-label="Pie chart showing medals per country" role="img"></canvas>
+</div>
 <div *ngIf="!numberOfCountries()" class="center" role="status" aria-live="polite">No country data available.</div>
