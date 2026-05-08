@@ -1,4 +1,4 @@
-# Revue d'Architecture - Projet Angular Starter
+oui# Revue d'Architecture - Projet Angular Starter
 
 ## Objectif
 Synthétiser les problèmes, risques, anti-patterns et recommandations pour améliorer la maintenabilité et l’évolutivité du projet Angular.
@@ -91,14 +91,11 @@ src/app/
     enum.ts
     response.type.ts
   shared/
-    loading-indicator.component.ts
     error-message.component.ts
     medal.pipe.ts
-    country-flag.directive.ts
+    total-jos.pipe.ts
   components/
-    country-summary.component.ts
     medal-chart.component.ts
-    athlete-list.component.ts
   pages/
     home/
     country/
@@ -120,4 +117,3 @@ src/app/
 ## Notes
 - Cette analyse est évolutive : adaptez-la selon les besoins du projet.
 - Pour la structure cible, voir `ARCHITECTURE.md`.
-- Pour les guides et ressources, voir `guide-utilisation.md` et `ressources.md`.

@@ -29,10 +29,10 @@ Mock data lives in `src/assets/mock/olympic.json` and simulates a future REST AP
 | Folder | Role |
 |---|---|
 | `pages/` | Route-level components (`HomeComponent`, `CountryComponent`, `NotFoundComponent`) |
-| `components/` | Reusable sub-components (`AthleteListComponent`, `CountrySummaryComponent`, `MedalChartComponent`) |
+| `components/` | Reusable sub-components (`MedalChartComponent`) |
 | `services/` | `OlympicDataService` (data), `ErrorHandlerService` (global errors), `LoggerService` (logging) |
 | `models/` | TypeScript interfaces — `Country`, `Participation`, `Athlete`, `Olympic` |
-| `shared/` | Standalone components (`ErrorMessageComponent`, `LoadingIndicatorComponent`), pipes (`MedalPipe`, `TotalJosPipe`), directives (`CountryFlagDirective`) |
+| `shared/` | Standalone components (`ErrorMessageComponent`), pipes (`MedalPipe`, `TotalJosPipe`) |
 | `types/` | Type aliases (`ApiResponse`, `FilterType`) and enums |
 
 ### Routing
@@ -41,8 +41,8 @@ Routes in `app.routes.ts` use `loadComponent` for lazy loading. Navigation to a 
 
 ### Reactivity patterns
 
-- `HomeComponent` uses Angular Signals (`toSignal`, `computed`, `effect`) — Chart.js pie chart is built inside an `effect()` watching the `countries` signal.
-- `CountryComponent` uses RxJS (`Subscription`, `filter`) with `ChangeDetectionStrategy.OnPush`.
+- `HomeComponent` uses Angular Signals (`toSignal`, `computed`) and `afterNextRender` — Chart.js pie chart is built inside `afterNextRender`, subscribing directly to `countries$` via `takeUntilDestroyed`. Canvas click is handled via Angular's native `(click)` binding, no `NgZone` needed.
+- `CountryComponent` uses RxJS (`filter`, `map`, `shareReplay`) with `async` pipe and `ChangeDetectionStrategy.OnPush`. Chart state is modelled as a discriminated union type `ChartState` derived from `countries$`.
 
 ### ESLint
 

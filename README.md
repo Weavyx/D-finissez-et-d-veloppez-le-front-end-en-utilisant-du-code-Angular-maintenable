@@ -54,9 +54,9 @@ Les données sont mockées dans `src/assets/mock/olympic.json`.
 
 ### Réactivité
 
-- `HomeComponent` utilise les **Angular Signals** (`toSignal`, `computed`, `effect`) pour la réactivité locale.
-- `CountryComponent` utilise l'**async pipe** et souscrit à `countries$` via `ngAfterViewInit`.
-- Toute souscription manuelle est nettoyée dans `ngOnDestroy`.
+- `HomeComponent` utilise les **Angular Signals** (`toSignal`, `computed`) et `afterNextRender` pour initialiser le graphique Chart.js une fois le DOM prêt. Le clic sur le pie chart est géré via `(click)` Angular natif.
+- `CountryComponent` utilise l'**async pipe** avec des observables dérivés (`map`, `shareReplay`) et un type discriminé `ChartState` pour modéliser les états du graphique.
+- Toute souscription manuelle est nettoyée automatiquement via `takeUntilDestroyed`.
 
 ### Gestion des erreurs
 

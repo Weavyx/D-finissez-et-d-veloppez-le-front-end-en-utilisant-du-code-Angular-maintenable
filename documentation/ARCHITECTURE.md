@@ -15,9 +15,7 @@ src/app/
 │   ├── country/        # Détail pays (line chart, stats par pays)
 │   └── not-found/      # Page 404
 ├── components/
-│   ├── country-summary.component.ts
-│   ├── medal-chart.component.ts
-│   └── athlete-list.component.ts
+│   └── medal-chart.component.ts   # Graphique line chart Chart.js (médailles par année)
 ├── services/
 │   ├── olympic-data.service.ts    # Chargement et diffusion des données
 │   ├── error-handler.service.ts   # Gestion centralisée des erreurs
@@ -28,10 +26,8 @@ src/app/
 │   └── athlete.model.ts           # Interface Athlete
 ├── shared/
 │   ├── error-message.component.ts
-│   ├── loading-indicator.component.ts
 │   ├── medal.pipe.ts
-│   ├── total-jos.pipe.ts
-│   └── country-flag.directive.ts
+│   └── total-jos.pipe.ts
 └── types/
     ├── filter.type.ts
     ├── enum.ts
@@ -96,12 +92,12 @@ public numberOfCountries = computed(() => this.countries()?.length ?? 0);
 public numberOfJOs = computed(() => this.countries()?.reduce((acc, c) => acc + c.participations.length, 0) ?? 0);
 ```
 
-Le graphique Chart.js est créé dans `afterNextRender`, qui garantit que le DOM est prêt avant toute manipulation du canvas. À l'intérieur, `toObservable` reconvertit le signal en observable pour réagir aux mises à jour de données, nettoyé automatiquement via `takeUntilDestroyed`.
+Le graphique Chart.js est créé dans `afterNextRender`, qui garantit que le DOM est prêt avant toute manipulation du canvas. À l'intérieur, `countries$` est souscrit directement et nettoyé automatiquement via `takeUntilDestroyed`.
 
 ```typescript
 constructor() {
   afterNextRender(() => {
-    toObservable(this.countries, { injector: this.injector })
+    this.olympicService.countries$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(countries => {
         if (countries && countries.length > 0) this.buildPieChart(countries);
@@ -111,6 +107,8 @@ constructor() {
 ```
 
 > **Pourquoi pas `effect()` ?** `effect()` réagit aux changements de signaux mais peut s'exécuter avant le premier rendu — le canvas n'est pas encore dans le DOM. `afterNextRender` est l'API dédiée aux interactions DOM post-rendu.
+
+Le clic sur une part du pie chart est géré via `(click)="onChartClick($event)"` dans le template Angular. Cela évite de passer par les callbacks de Chart.js qui s'exécutent hors zone, rendant `NgZone` inutile.
 
 ---
 
