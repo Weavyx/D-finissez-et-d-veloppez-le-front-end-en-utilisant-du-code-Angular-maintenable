@@ -21,20 +21,17 @@
   <div class="center" role="status" aria-live="polite">Country not found.</div>
 </ng-template>
 
-<div class="chart-container wrapper-container"
-     [hidden]="(chartState$ | async)?.status !== 'ready'">
-  <div class="container">
-    <canvas #countryChart id="countryChart" aria-label="Line chart showing medals per year for this country" role="img"></canvas>
-    <h2>Date</h2>
-  </div>
-</div>
-
 <ng-container *ngIf="chartState$ | async as chartState">
   <div *ngIf="chartState.status === 'loading'" class="center" role="status" aria-live="polite">
     Loading chart...
   </div>
   <div *ngIf="chartState.status === 'empty'" class="center" role="status" aria-live="polite">
     No participation data available for this country.
+  </div>
+  <div *ngIf="chartState.status === 'ready'" class="chart-container wrapper-container">
+    <div class="container">
+      <app-medal-chart [labels]="chartState.labels" [data]="chartState.data"></app-medal-chart>
+    </div>
   </div>
 </ng-container>
 

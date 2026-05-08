@@ -1,9 +1,0 @@
-<ng-container *ngIf="country; else noData">
-  <div role="listitem" tabindex="0">
-    {{country.country}} ({{country.participations.length}} participations)
-  </div>
-</ng-container>
-<ng-template #noData>
-  <div class="center" role="status" aria-live="polite">No country data available.</div>
-</ng-template>
-
