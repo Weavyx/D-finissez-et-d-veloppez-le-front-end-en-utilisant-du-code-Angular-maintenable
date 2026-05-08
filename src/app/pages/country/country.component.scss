@@ -4,15 +4,10 @@
 }
 
 .container {
-  width: 50%;
+  width: clamp(300px, 80%, 700px);
+
   h2 {
     text-align: center;
     color: gray;
-  }
-}
-
-@media screen and (max-width: 1000px) {
-  .container {
-    width: 100%;
   }
 }
