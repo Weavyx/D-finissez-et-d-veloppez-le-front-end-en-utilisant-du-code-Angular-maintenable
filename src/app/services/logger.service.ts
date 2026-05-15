@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class LoggerService {
-  log(_message: string): void {
-    // Journalisation améliorée (future extension : envoi serveur, stockage, etc.)
-    // Suppression du console.log pour production
-    // Exemple : envoyer à un serveur ou stocker localement
+  log(message: string): void {
+    if (isDevMode()) {
+      console.log(message);
+    }
   }
 }
