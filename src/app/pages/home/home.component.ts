@@ -15,13 +15,14 @@ import { OlympicDataService } from '../../services/olympic-data.service';
 import { ErrorHandlerService } from '../../services/error-handler.service';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Country } from '../../models/country.model';
+import { TotalJOsPipe } from '../../shared/total-jos.pipe';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TotalJOsPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
@@ -34,7 +35,6 @@ export class HomeComponent {
   public countries = toSignal(this.olympicService.countries$, { requireSync: true });
   public titlePage = 'Medals per Country';
   public numberOfCountries = computed(() => this.countries()?.length ?? 0);
-  public numberOfJOs = computed(() => this.countries()?.reduce((acc, c) => acc + c.participations.length, 0) ?? 0);
   private pieChart?: Chart<'pie', number[], string>;
 
   constructor() {
