@@ -8,6 +8,7 @@ import {Observable, map, shareReplay, filter} from 'rxjs';
 import {OlympicDataService} from '../../services/olympic-data.service';
 import {CommonModule} from '@angular/common';
 import {MedalChartComponent} from '../../components/medal-chart.component';
+import {MedalPipe} from '../../shared/medal.pipe';
 
 type ChartState =
   | { status: 'loading' }
@@ -20,7 +21,7 @@ type ChartState =
   templateUrl: './country.component.html',
   styleUrls: ['./country.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule, MedalChartComponent],
+  imports: [CommonModule, RouterModule, MedalChartComponent, MedalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountryComponent {

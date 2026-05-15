@@ -5,7 +5,8 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true,
 })
 export class MedalPipe implements PipeTransform {
-  transform(value: number): string {
+  transform(value: number | null): string {
+    if (value === null) return '';
     return value + ' 🏅';
   }
 }
