@@ -12,7 +12,6 @@ export class ErrorHandlerService implements ErrorHandler {
     const message = 'Erreur interceptée: ' + (error instanceof Error ? error.message : error);
     this.logger.log(message);
     this.errorSubject.next(message);
-    // TODO: Affichage UI global si besoin (ex: via un service de notification)
   }
 
   clearError() {
