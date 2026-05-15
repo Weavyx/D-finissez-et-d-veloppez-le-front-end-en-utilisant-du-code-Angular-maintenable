@@ -1,20 +1,24 @@
 <h2>Olympic games app</h2>
-<hr/>
-<div>
-  <div>
-    <div class="center">
-      <div>{{ titlePage }}</div>
+<hr />
+
+<ng-container *ngIf="countries() as countries">
+  <div class="center">
+    <div>{{ titlePage }}</div>
+  </div>
+  <div class="split">
+    <div>
+      <p>Number of countries</p>
+      <p>{{ numberOfCountries() }}</p>
     </div>
-    <div class="split">
-      <div>
-        <p>Number of countries</p>
-        <p>{{ totalCountries }}</p>
-      </div>
-      <div>
-        <p>Number of JOs</p>
-        <p>{{ totalJOs }}</p>
-      </div>
+    <div>
+      <p>Number of JOs</p>
+      <p>{{ countries | totalJOs }}</p>
     </div>
   </div>
-  <canvas id="DashboardPieChart">{{ pieChart }}</canvas>
+</ng-container>
+
+<div class="chart-wrapper">
+  <canvas #dashboardPieChart (click)="onChartClick($event)" [hidden]="countries() !== null && !numberOfCountries()" aria-label="Pie chart showing medals per country" role="img"></canvas>
 </div>
+<div *ngIf="countries() === null" class="center" role="status" aria-live="polite">Loading...</div>
+<div *ngIf="countries() !== null && !numberOfCountries()" class="center" role="status" aria-live="polite">No country data available.</div>

@@ -1,7 +1,7 @@
 // @ts-check
 const eslint = require("@eslint/js");
 const { defineConfig } = require("eslint/config");
-const tseslint = require("typescript-eslint");
+const tslint = require("typescript-eslint");
 const angular = require("angular-eslint");
 
 module.exports = defineConfig([
@@ -9,8 +9,8 @@ module.exports = defineConfig([
     files: ["**/*.ts"],
     extends: [
       eslint.configs.recommended,
-      tseslint.configs.recommended,
-      tseslint.configs.stylistic,
+      tslint.configs.recommended,
+      tslint.configs.stylistic,
       angular.configs.tsRecommended,
     ],
     processor: angular.processInlineTemplates,
@@ -31,6 +31,10 @@ module.exports = defineConfig([
           style: "kebab-case",
         },
       ],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { "argsIgnorePattern": "^_" }
+      ],
     },
   },
   {
@@ -39,6 +43,8 @@ module.exports = defineConfig([
       angular.configs.templateRecommended,
       angular.configs.templateAccessibility,
     ],
-    rules: {},
+    rules: {
+      "@angular-eslint/template/prefer-control-flow": "off",
+    },
   }
 ]);
