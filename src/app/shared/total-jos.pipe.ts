@@ -8,8 +8,8 @@ import { Country } from '../models/country.model';
 export class TotalJOsPipe implements PipeTransform {
   transform(countries: Country[]): number {
     if (!countries || countries.length === 0) return 0;
-    // Compte le nombre total de participations (JOs) pour tous les pays
-    return countries.reduce((acc, country) => acc + (country.participations?.length || 0), 0);
+    const years = countries.flatMap(c => c.participations.map(p => p.year));
+    return new Set(years).size;
   }
 }
 
