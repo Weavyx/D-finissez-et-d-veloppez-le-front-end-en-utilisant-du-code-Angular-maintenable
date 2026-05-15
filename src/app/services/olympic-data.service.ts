@@ -31,6 +31,7 @@ export class OlympicDataService {
       }),
       catchError(() => {
         this.countriesSubject.next(null);
+        this.loaded = true;
         return of(null);
       })
     );
