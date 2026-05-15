@@ -1,9 +1,10 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  Input,
   inject,
 } from '@angular/core';
-import {ActivatedRoute, RouterModule} from '@angular/router';
+import {RouterModule} from '@angular/router';
 import {Observable, map, shareReplay, filter} from 'rxjs';
 import {OlympicDataService} from '../../services/olympic-data.service';
 import {CommonModule} from '@angular/common';
@@ -25,14 +26,13 @@ type ChartState =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountryComponent {
-  private route = inject(ActivatedRoute);
   private olympicService = inject(OlympicDataService);
 
-  private countryName = this.route.snapshot.paramMap.get('countryName');
+  @Input() countryName!: string;
 
   public country$ = this.olympicService.countries$.pipe(
-    filter((countries) => !!countries && countries.length > 0),
-    map(countries => countries?.find(c => c.country === this.countryName)),
+    filter(countries => countries !== null),
+    map(countries => countries!.find(c => c.country === this.countryName)),
     shareReplay(1)
   );
 
