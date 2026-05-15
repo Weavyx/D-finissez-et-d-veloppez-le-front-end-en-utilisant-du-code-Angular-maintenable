@@ -1,4 +1,4 @@
-oui# Revue d'Architecture - Projet Angular Starter
+# Revue d'Architecture - Projet Angular Starter
 
 ## Objectif
 Synthétiser les problèmes, risques, anti-patterns et recommandations pour améliorer la maintenabilité et l’évolutivité du projet Angular.
