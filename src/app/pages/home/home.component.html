@@ -18,6 +18,7 @@
 </ng-container>
 
 <div class="chart-wrapper">
-  <canvas #dashboardPieChart (click)="onChartClick($event)" [hidden]="!numberOfCountries()" aria-label="Pie chart showing medals per country" role="img"></canvas>
+  <canvas #dashboardPieChart (click)="onChartClick($event)" [hidden]="countries() !== null && !numberOfCountries()" aria-label="Pie chart showing medals per country" role="img"></canvas>
 </div>
-<div *ngIf="!numberOfCountries()" class="center" role="status" aria-live="polite">No country data available.</div>
+<div *ngIf="countries() === null" class="center" role="status" aria-live="polite">Loading...</div>
+<div *ngIf="countries() !== null && !numberOfCountries()" class="center" role="status" aria-live="polite">No country data available.</div>
