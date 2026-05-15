@@ -8,8 +8,8 @@ export class ErrorHandlerService implements ErrorHandler {
   private errorSubject = new BehaviorSubject<string>('');
   public error$ = this.errorSubject.asObservable();
 
-  handleError(error: Error | string): void {
-    const message = 'Erreur interceptée: ' + (error instanceof Error ? error.message : error);
+  handleError(error: unknown): void {
+    const message = 'Erreur interceptée: ' + (error instanceof Error ? error.message : String(error));
     this.logger.log(message);
     this.errorSubject.next(message);
   }
